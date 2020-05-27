@@ -31,8 +31,8 @@ CREATE TABLE `otp_data` (
 -- Dumping data for table `otp_data`
 --
 
-INSERT INTO `otp_data` (`id`, `otp`, `phone`, `date_created`) VALUES
-(4, '809058', '9876543210', '2020-05-26 22:55:53');
+-- INSERT INTO `otp_data` (`id`, `otp`, `phone`, `date_created`) VALUES
+-- (4, '809058', '9876543210', '2020-05-26 22:55:53');
 
 -- --------------------------------------------------------
 
@@ -57,9 +57,9 @@ CREATE TABLE `user_data` (
 -- Dumping data for table `user_data`
 --
 
-INSERT INTO `user_data` (`id`, `first_name`, `last_name`, `phone`, `date_registered`, `last_login`, `last_login_ip`, `FCM_token`, `login_token`, `usr_setupdone`) VALUES
-(10, NULL, NULL, '7666066985', '2020-05-26 02:04:22', NULL, NULL, NULL, NULL, 0),
-(11, NULL, NULL, '9876543210', '2020-05-26 10:40:54', NULL, NULL, NULL, NULL, 0);
+-- INSERT INTO `user_data` (`id`, `first_name`, `last_name`, `phone`, `date_registered`, `last_login`, `last_login_ip`, `FCM_token`, `login_token`, `usr_setupdone`) VALUES
+-- (10, NULL, NULL, '7666066985', '2020-05-26 02:04:22', NULL, NULL, NULL, NULL, 0),
+-- (11, NULL, NULL, '9876543210', '2020-05-26 10:40:54', NULL, NULL, NULL, NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -124,3 +124,46 @@ ALTER TABLE `user_data`
 --
 ALTER TABLE `wallet`
   ADD CONSTRAINT `wallet_ibfk_1` FOREIGN KEY (`id`) REFERENCES `user_data` (`id`);
+
+  -- Table structure for table `stocks`
+--
+
+CREATE TABLE `stocks` (
+  `id` int(11) NOT NULL,
+  `STK_EXCHANGE` text NOT NULL,
+  `SCRIPCODE` text NOT NULL,
+  `FINCODE` text NOT NULL,
+  `SYMBOL` text,
+  `COMPNAME` text NOT NULL,
+  `S_NAME` text NOT NULL,
+  `SCRIP_GROUP` text,
+  `Date` datetime NOT NULL,
+  `OPEN_PRICE` double NOT NULL,
+  `HIGH_PRICE` double NOT NULL,
+  `LOW_PRICE` double NOT NULL,
+  `CLOSE_PRICE` double NOT NULL,
+  `PREVCLOSE` double NOT NULL,
+  `PREV_DATE` datetime NOT NULL,
+  `PERCHG` double NOT NULL,
+  `NETCHG` double NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `stocks`
+--
+ALTER TABLE `stocks`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `stocks`
+--
+ALTER TABLE `stocks`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
