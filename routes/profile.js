@@ -7,6 +7,8 @@ router.post('/edit', (req, res)=>{
     let first_name = req.body.first_name;
     let last_name = req.body.last_name;
     let phone = req.body.phone;
+    let username = req.body.username;
+    //console.log("Unique"+uniqueUserName(username));
     if ( phone == undefined || phone.length!=10 || isNaN(phone))
     {
         res.json({
@@ -23,29 +25,107 @@ router.post('/edit', (req, res)=>{
     }
     else
     {
-        connection.query(`UPDATE user_data SET first_name='${first_name}', last_name='${last_name}', usr_setupdone=TRUE where phone='${phone}'`,function(error, results, fields){
+        connection.query(`SELECT usr_setupdone from user_data where phone='${phone}'`,function(error, result, fields){
             if (error) throw error;
-            if(results.affectedRows > 0)
+            console.log("Setup:"+result[0].usr_setupdone)
+            if(result[0].usr_setupdone == true)
             {
-                res.json({
-                    status: 213,
-                    msg: "User Update successful."
-                
+                connection.query(`UPDATE user_data SET first_name='${first_name}', last_name='${last_name}' where phone='${phone}'`,function(error, results, fields){
+                    if (error) throw error;
+                    if(results.affectedRows > 0)
+                    {
+                        res.json({
+                            status: 213,
+                            msg: "User Update successful."
+                        
+                        });
+        
+                    }
+                    else
+                    {
+                        res.json({
+                            status: 214,
+                            msg: "User Update unsuccessful. Kindly check phone."
+                        
+                        });
+                    }
                 });
-
             }
             else
             {
-                res.json({
-                    status: 214,
-                    msg: "User Update unsuccessful. Kindly check phone."
-                
+                let validate = validateUserName(username);
+                // console.log(username);
+                // console.log(username == undefined);
+                // console.log(isNaN(username));
+                connection.query(`SELECT username from user_data where username='${username}'`, function(error, r, fields){
+                    if(error) throw error;
+                    console.log("Count:"+r.length);
+                    if(r.length>0)
+                    {
+                        res.json({
+                            status: 217,
+                            msg: "UserName already taken."
+                        
+                        });
+                    }
+                    else
+                    {
+                        if( username == undefined || validate == false)
+                        {
+                            res.json({
+                                status: 218,
+                                msg: "Username Invalid/Missing."
+                            
+                            });
+                        }
+                        else
+                        {
+                            connection.query(`UPDATE user_data SET first_name='${first_name}', last_name='${last_name}', username='${username}', usr_setupdone=TRUE where phone='${phone}'`,function(error, results, fields){
+                                if (error) throw error;
+                                if(results.affectedRows > 0)
+                                {
+                                    res.json({
+                                        status: 215,
+                                        msg: "New Profile Set."
+                                    
+                                    });
+                    
+                                }
+                                else
+                                {
+                                    res.json({
+                                        status: 216,
+                                        msg: "New User Profile Not Set."
+                                    
+                                    });
+                                }
+                            });
+                        }
+                    }
                 });
+               
+                
+                
             }
+            
         });
+        
     }
 
 });
+
+function validateUserName(uname) {
+    let usernameRegex = /^[a-z0-9]+$/;
+    let validUserName  = uname.match(usernameRegex);
+    let ans = true;
+    if(validUserName == null){
+        ans = false;
+    }
+    console.log("validateUserName:"+ans);
+    return ans;
+} 
+
+
 
 router.post('/updateFCM', (req, res)=>{
 
@@ -89,10 +169,6 @@ router.post('/updateFCM', (req, res)=>{
         });
     }
     
-    
-    //Just recieve FCM token and phone number in req variable.
-    //Validate it.
-    //Update in database.
 
 });
 

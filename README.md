@@ -1,5 +1,15 @@
 # StockGameServer
 
+### Update 28/05/2020 11:52am
+
+Run Query:
+~~~sql
+ALTER TABLE `user_data` ADD `username` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL AFTER `phone`;
+~~~
+- Updated user_data
+- Update profile.js : Now checks for unique username, valid username, updates details in user_data
+
+
 ### Update 28/05/2020 8:45 PM
 - Updated TODO.md
 - Added wallet Initialization code on new user otp verification.
@@ -21,3 +31,4 @@ Updated otp.js to set user type to 1 on new user registration.
 Added TODO.md file for the things to be done on the overall project.
 
 Fixed bracket issue in profile.js
+
