@@ -1,9 +1,15 @@
 # StockGameServer
 
-###Update 28/05/2020 7:42PM
- - Fixed the date time formating in updateStocks.js 
+### Update 28/05/2020 8:45 PM
+- Updated TODO.md
+- Added wallet Initialization code on new user otp verification.
 
-###Update 28/05/2020 6:06PM 
+
+### Update 28/05/2020 7:42PM
+ - Fixed the date time formating in updateStocks.js 
+ - Updated TODO.md
+
+### Update 28/05/2020 6:06PM 
 
 Run SQL Query : 
 ~~~~sql
