@@ -1,5 +1,14 @@
 # StockGameServer
 
+### Update 28/05/2020 
+  - Added count column in coupon codes table
+  ~~~~sql
+    ALTER TABLE couponcode ADD (count int default 1 NOT NULL)
+  ~~~~
+
+  - Endpoint added to redeem coupon.
+  - TODO: Add expiry date validation in this endpoint.
+
 ### Update 28/05/2020 11:52 PM
 
 Run Query:
@@ -8,7 +17,6 @@ ALTER TABLE `user_data` ADD `username` TEXT CHARACTER SET utf8 COLLATE utf8_gene
 ~~~
 - Updated user_data
 - Update profile.js : Now checks for unique username, valid username, updates details in user_data
-
 
 ### Update 28/05/2020 8:45 PM
 - Updated TODO.md
