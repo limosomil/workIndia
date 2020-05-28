@@ -1,6 +1,6 @@
 # StockGameServer
 
-### Update 28/05/2020 11:52am
+### Update 28/05/2020 11:52 PM
 
 Run Query:
 ~~~sql
