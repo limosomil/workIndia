@@ -47,7 +47,7 @@ router.post('/edit', (req, res)=>{
 
 });
 
-router.post('/updateFCM', (req, res=>{
+router.post('/updateFCM', (req, res)=>{
 
     let fcm = req.body.fcm;
     let phone = req.body.phone;
@@ -94,7 +94,7 @@ router.post('/updateFCM', (req, res=>{
     //Validate it.
     //Update in database.
 
-}));
+});
 
 
 
