@@ -1,5 +1,11 @@
 # StockGameServer
 
+### Update 28/05/2020 
+  - Added count column in coupon codes table
+  ~~~~sql
+    ALTER TABLE couponcode ADD (count int default 1 NOT NULL)
+  ~~~~
+
 ### Update 28/05/2020 8:45 PM
 - Updated TODO.md
 - Added wallet Initialization code on new user otp verification.

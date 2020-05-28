@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const connection = require('../connection');
 
-var moment = require('moment');
+const moment = require('moment');
 
 router.post('/generate', (req,res)=>{
 
