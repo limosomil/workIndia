@@ -23,10 +23,10 @@ cron.schedule("*/5 9-14 * * 1-5", function(){
     // let c = 0;
     for(key in table){
         stockobj = table[key];
-        var scripdate = moment((stockobj.Date.replace('/','-')), "MM/DD/YYYY hh:mm:ss");
+        var scripdate = moment((stockobj.Date.replace('/','-')), "MM/DD/YYYY hh:mm:ss a");
         var currentDate = moment();
         var scriptdate_db = scripdate.format('YYYY-MM-DD hh:mm:ss');
-        var prev_date = moment((stockobj.PREV_DATE.replace('/','-')), "MM/DD/YYYY hh:mm:ss").format('YYYY-MM-DD hh:mm:ss');;
+        var prev_date = moment((stockobj.PREV_DATE.replace('/','-')), "MM/DD/YYYY hh:mm:ss a").format('YYYY-MM-DD hh:mm:ss');;
 
         
         

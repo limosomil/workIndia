@@ -1,5 +1,8 @@
 # StockGameServer
 
+###Update 28/05/2020 7:42PM
+ - Fixed the date time formating in updateStocks.js 
+
 ###Update 28/05/2020 6:06PM 
 
 Run SQL Query : 
