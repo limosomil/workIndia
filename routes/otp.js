@@ -98,15 +98,21 @@ router.post(
                                     if(error) throw error;
 
                                     idInserted = results.insertId;
-                                    // console.log(idInserted);
 
-                                    connection.query(`SELECT * FROM user_data WHERE id=${idInserted}`, function(error, results, fields){
+                                    //Initialize wallet.
+                                    connection.query(`INSERT INTO wallet (id) VALUES (${idInserted})`, function(error, results, fields){
+
                                         if(error) throw error;
+                                    
+                                        //fetch user data to send a json response.
+                                        connection.query(`SELECT * FROM user_data WHERE id=${idInserted}`, function(error, results, fields){
+                                            if(error) throw error;
+    
+                                            userdata = results[0];
+    
+                                            delete_otpentry(res, otp, phone, userdata, 114, "New User Created.");
+                                        });
 
-                                        userdata = results[0];
-                                        // console.log("Get userdata : "+userdata);
-
-                                        delete_otpentry(res, otp, phone, userdata, 114, "New User Created.");
                                     });
                                 });
                             }
