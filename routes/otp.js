@@ -94,7 +94,7 @@ router.post(
                                 delete_otpentry(res, otp, phone, userdata, 115, "Login Successful.");
                             }else{
                                 //NEW USER.
-                                connection.query(`INSERT INTO user_data (phone, date_registered, usr_setupdone) VALUES ('${phone}', '${current_time.format('YYYY-MM-DD hh:mm:ss')}', FALSE)`, function(error, results, fields){
+                                connection.query(`INSERT INTO user_data (phone, date_registered, usr_setupdone, type) VALUES ('${phone}', '${current_time.format('YYYY-MM-DD hh:mm:ss')}', FALSE, 1)`, function(error, results, fields){
                                     if(error) throw error;
 
                                     idInserted = results.insertId;
