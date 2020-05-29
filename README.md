@@ -1,5 +1,13 @@
 # StockGameServer
 
+### Update 30/05/2020
+ - Added column in wallet table
+~~~~sql
+  ALTER TABLE `wallet` ADD `coupon_amount` DOUBLE NOT NULL DEFAULT '0' AFTER `money_played`;
+~~~~
+
+ - Added logic to check coupon expiry and update coupon amount in wallet.
+
 ### Update 28/05/2020 
   - Added count column in coupon codes table
   ~~~~sql

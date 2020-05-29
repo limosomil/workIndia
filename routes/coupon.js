@@ -27,9 +27,21 @@ router.post('/redeem', (req, res)=>{
             if(results.length > 0){
                 //Coupon and phone pair found
 
-                //TODO: Add time validation here.
+                //Expiry validation here.
+                let coupon_expiry = moment(results[0].expiry_date);
+                let currentTime = moment();
 
-                //get count
+                if(currentTime.isAfter(coupon_expiry)){
+
+                    connection.query(`DELETE FROM couponcode WHERE id=${results[0].id}`);
+
+                    res.json({
+                        status: 306,
+                        msg: "Coupon Expired."
+                    });
+
+                }else{
+                    //get count
                 let count = results[0].count;
                 let amount = results[0].amount;
                 connection.query(`SELECT * FROM wallet WHERE id = (SELECT id FROM user_data WHERE phone='${phone}')`, function(error, r, fields){
@@ -40,7 +52,10 @@ router.post('/redeem', (req, res)=>{
                         let balance = r[0].balance;
                         let newBalance = balance + amount;
 
-                        connection.query(`UPDATE wallet SET balance=${newBalance} WHERE id=${r[0].id}`, function(error, resp, fields){
+                        let coupon_amt = r[0].coupon_amount;
+                        coupon_amt = coupon_amt + amount;
+
+                        connection.query(`UPDATE wallet SET balance=${newBalance}, coupon_amount=${coupon_amt} WHERE id=${r[0].id}`, function(error, resp, fields){
                             if(error) throw error;
 
                             count--;
@@ -72,6 +87,10 @@ router.post('/redeem', (req, res)=>{
                         });
                     }
                 });
+                }
+
+
+                
 
             }else{
                 //Coupon and phone pair NOT found
