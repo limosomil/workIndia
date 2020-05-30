@@ -1,6 +1,6 @@
 # StockGameServer
 
-### Update 29/05/2020 11:34 AM
+### Update 30/05/2020 11:34 AM
 ~~~sql
 CREATE TABLE `stock_game`.`competitions` ( `id` INT NOT NULL AUTO_INCREMENT ,  `type` INT NOT NULL ,  `entry_fee` INT NOT NULL ,  `max_entry` INT NOT NULL ,  `entries_count` INT NOT NULL ,  `duration_day` INT NOT NULL ,  `day_added` DATETIME NOT NULL ,  `last_day` DATETIME NOT NULL ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
 
@@ -17,6 +17,13 @@ CREATE TABLE `stock_game`.`entry_description_bs` ( `entry_id` INT NOT NULL , `sc
 ALTER TABLE `entry_description_bs` ADD CONSTRAINT `fk_entryid_bs` FOREIGN KEY (`entry_id`) REFERENCES `comp_entries`(`entry_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 ~~~
 
+### Update 30/05/2020
+ - Added column in wallet table
+~~~~sql
+  ALTER TABLE `wallet` ADD `coupon_amount` DOUBLE NOT NULL DEFAULT '0' AFTER `money_played`;
+~~~~
+
+ - Added logic to check coupon expiry and update coupon amount in wallet.
 
 ### Update 28/05/2020 
   - Added count column in coupon codes table
