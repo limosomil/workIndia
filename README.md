@@ -1,6 +1,6 @@
 # StockGameServer
 
-### Update 30/05/2020
+### Update 30/05/2020 2:50 PM
  - Add dummy user for coupon (0000000000)
 ~~~~sql
  INSERT INTO `user_data` (`id`, `first_name`, `last_name`, `phone`, `username`, `date_registered`, `last_login`, `last_login_ip`, `FCM_token`, `login_token`, `usr_setupdone`, `type`) VALUES (NULL, 'Coupon', 'Dummy', '0000000000', 'coupondummy', '2000-12-31 00:00:00', NULL, NULL, NULL, NULL, '0', '3');
@@ -18,6 +18,23 @@
   CREATE TABLE `stock_game`.`log_coupon` ( `id` INT NOT NULL AUTO_INCREMENT , `type` TEXT NOT NULL , `log` TEXT NOT NULL , PRIMARY KEY (`id`))
 ~~~~
 - Log usage added to addCoupon
+
+### Update 30/05/2020 11:34 AM
+~~~sql
+CREATE TABLE `stock_game`.`competitions` ( `id` INT NOT NULL AUTO_INCREMENT ,  `type` INT NOT NULL ,  `entry_fee` INT NOT NULL ,  `max_entry` INT NOT NULL ,  `entries_count` INT NOT NULL ,  `duration_day` INT NOT NULL ,  `day_added` DATETIME NOT NULL ,  `last_day` DATETIME NOT NULL ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
+
+ALTER TABLE `competitions` ADD `cashvalue` INT NOT NULL AFTER `entry_fee`;
+
+ALTER TABLE `comp_entries` ADD CONSTRAINT `fk_payerid` FOREIGN KEY (`player_id`) REFERENCES `user_data`(`id`) ON DELETE CASCADE ON UPDATE CASCADE; ALTER TABLE `comp_entries` ADD CONSTRAINT `fk_compid` FOREIGN KEY (`comp_id`) REFERENCES `competitions`(`id`) ON DELETE CASCADE ON UPDATE RESTRICT;
+
+CREATE TABLE `stock_game`.`entry_description` ( `entry_id` INT NOT NULL , `scriptcode` INT NOT NULL , `buy_price` INT NOT NULL , `buy_qty` INT NOT NULL , `netvalue` INT NOT NULL ) ENGINE = InnoDB;
+
+ALTER TABLE `entry_description` ADD CONSTRAINT `fk_entryid_desc` FOREIGN KEY (`entry_id`) REFERENCES `comp_entries`(`entry_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+CREATE TABLE `stock_game`.`entry_description_bs` ( `entry_id` INT NOT NULL , `scriptcode` INT NOT NULL , `buy_price` INT NOT NULL , `buy_qty` INT NOT NULL , `netvalue` INT NOT NULL, `buy_or_sell` TINYINT NOT NULL ) ENGINE = InnoDB;
+
+ALTER TABLE `entry_description_bs` ADD CONSTRAINT `fk_entryid_bs` FOREIGN KEY (`entry_id`) REFERENCES `comp_entries`(`entry_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+~~~
 
 ### Update 30/05/2020
  - Added column in wallet table
