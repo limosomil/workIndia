@@ -6,7 +6,19 @@ CREATE TABLE `stock_game`.`competitions` ( `id` INT NOT NULL AUTO_INCREMENT ,  `
 
 ALTER TABLE `competitions` ADD `cashvalue` INT NOT NULL AFTER `entry_fee`;
 
-ALTER TABLE `comp_entries` ADD CONSTRAINT `fk_payerid` FOREIGN KEY (`player_id`) REFERENCES `user_data`(`id`) ON DELETE CASCADE ON UPDATE CASCADE; ALTER TABLE `comp_entries` ADD CONSTRAINT `fk_compid` FOREIGN KEY (`comp_id`) REFERENCES `competitions`(`id`) ON DELETE CASCADE ON UPDATE RESTRICT;
+
+CREATE TABLE `comp_entries` (
+ `comp_id` int(11) NOT NULL,
+ `player_id` int(11) NOT NULL,
+ `entry_id` int(11) NOT NULL AUTO_INCREMENT,
+ `cash` int(11) NOT NULL,
+ PRIMARY KEY (`entry_id`),
+ KEY `comp_id` (`comp_id`),
+ KEY `player_id` (`player_id`),
+ CONSTRAINT `fk_compid` FOREIGN KEY (`comp_id`) REFERENCES `competitions` (`id`) ON DELETE CASCADE,
+ CONSTRAINT `fk_payerid` FOREIGN KEY (`player_id`) REFERENCES `user_data` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1
+
 
 CREATE TABLE `stock_game`.`entry_description` ( `entry_id` INT NOT NULL , `scriptcode` INT NOT NULL , `buy_price` INT NOT NULL , `buy_qty` INT NOT NULL , `netvalue` INT NOT NULL ) ENGINE = InnoDB;
 
@@ -14,7 +26,8 @@ ALTER TABLE `entry_description` ADD CONSTRAINT `fk_entryid_desc` FOREIGN KEY (`e
 
 CREATE TABLE `stock_game`.`entry_description_bs` ( `entry_id` INT NOT NULL , `scriptcode` INT NOT NULL , `buy_price` INT NOT NULL , `buy_qty` INT NOT NULL , `netvalue` INT NOT NULL, `buy_or_sell` TINYINT NOT NULL ) ENGINE = InnoDB;
 
-ALTER TABLE `entry_description_bs` ADD CONSTRAINT `fk_entryid_bs` FOREIGN KEY (`entry_id`) REFERENCES `comp_entries`(`entry_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `entry_description_bs` ADD CONSTRAINT 
+`fk_entryid_bs` FOREIGN KEY (`entry_id`) REFERENCES `comp_entries`(`entry_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 ~~~
 
 ### Update 30/05/2020
