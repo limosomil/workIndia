@@ -12,6 +12,10 @@ const otp = require('./routes/otp');
 const profile = require('./routes/profile');
 const coupon = require('./routes/coupon');
 
+app.get('/', (req,res)=>{
+    res.send("If you are here, you probably shouldn't be on this server. Shoo away. Or I'll call 911.");
+});
+
 app.use('/otp', otp);
 app.use('/profile', profile);
 app.use('/coupon', coupon);
