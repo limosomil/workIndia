@@ -1,6 +1,25 @@
 # StockGameServer
 
 ### Update 30/05/2020
+ - Add dummy user for coupon (0000000000)
+~~~~sql
+ INSERT INTO `user_data` (`id`, `first_name`, `last_name`, `phone`, `username`, `date_registered`, `last_login`, `last_login_ip`, `FCM_token`, `login_token`, `usr_setupdone`, `type`) VALUES (NULL, 'Coupon', 'Dummy', '0000000000', 'coupondummy', '2000-12-31 00:00:00', NULL, NULL, NULL, NULL, '0', '3');
+~~~~
+ - End point to add a general coupon code.
+
+- Change couponcode table to not allow NULL Values
+~~~~sql
+  ALTER TABLE `couponcode` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT, CHANGE `phone` `phone` VARCHAR(10) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL, CHANGE `code` `code` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL, CHANGE `date_added` `date_added` DATETIME NOT NULL, CHANGE `expiry_date` `expiry_date` DATETIME NOT NULL, CHANGE `amount` `amount` DOUBLE NOT NULL;
+~~~~
+
+- Input Validation in addCoupon.
+- Log Table for coupon added. 
+~~~~sql
+  CREATE TABLE `stock_game`.`log_coupon` ( `id` INT NOT NULL AUTO_INCREMENT , `type` TEXT NOT NULL , `log` TEXT NOT NULL , PRIMARY KEY (`id`))
+~~~~
+- Log usage added to addCoupon
+
+### Update 30/05/2020
  - Added column in wallet table
 ~~~~sql
   ALTER TABLE `wallet` ADD `coupon_amount` DOUBLE NOT NULL DEFAULT '0' AFTER `money_played`;
@@ -15,7 +34,7 @@
   ~~~~
 
   - Endpoint added to redeem coupon.
-  - TODO: Add expiry date validation in this endpoint.
+  - TODO: Add expiry date validation in this endpoint. (DONE).
 
 ### Update 28/05/2020 11:52 PM
 

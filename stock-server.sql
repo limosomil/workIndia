@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: May 28, 2020 at 08:26 AM
+-- Generation Time: May 29, 2020 at 09:00 PM
 -- Server version: 5.7.26
 -- PHP Version: 7.3.8
 
@@ -26,7 +26,8 @@ CREATE TABLE `couponcode` (
   `code` text,
   `date_added` datetime DEFAULT NULL,
   `expiry_date` datetime DEFAULT NULL,
-  `amount` double DEFAULT NULL
+  `amount` double DEFAULT NULL,
+  `count` int(11) NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -41,13 +42,6 @@ CREATE TABLE `otp_data` (
   `phone` text NOT NULL,
   `date_created` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `otp_data`
---
-
-INSERT INTO `otp_data` (`id`, `otp`, `phone`, `date_created`) VALUES
-(4, '809058', '9876543210', '2020-05-26 22:55:53');
 
 -- --------------------------------------------------------
 
@@ -86,13 +80,22 @@ CREATE TABLE `user_data` (
   `first_name` text,
   `last_name` text,
   `phone` varchar(10) NOT NULL,
+  `username` text,
   `date_registered` datetime NOT NULL,
   `last_login` datetime DEFAULT NULL,
   `last_login_ip` text,
   `FCM_token` text,
   `login_token` text,
-  `usr_setupdone` tinyint(1) NOT NULL
+  `usr_setupdone` tinyint(1) NOT NULL,
+  `type` tinyint(4) NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `user_data`
+--
+
+INSERT INTO `user_data` (`id`, `first_name`, `last_name`, `phone`, `username`, `date_registered`, `last_login`, `last_login_ip`, `FCM_token`, `login_token`, `usr_setupdone`, `type`) VALUES
+(2, NULL, NULL, '9930999305', NULL, '2020-05-28 08:34:49', NULL, NULL, NULL, NULL, 0, 1);
 
 -- --------------------------------------------------------
 
@@ -106,8 +109,16 @@ CREATE TABLE `wallet` (
   `funds_added` double NOT NULL DEFAULT '0',
   `funds_withdrawm` double NOT NULL DEFAULT '0',
   `money_won` double NOT NULL DEFAULT '0',
-  `money_played` double NOT NULL DEFAULT '0'
+  `money_played` double NOT NULL DEFAULT '0',
+  `coupon_amount` double NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `wallet`
+--
+
+INSERT INTO `wallet` (`id`, `balance`, `funds_added`, `funds_withdrawm`, `money_won`, `money_played`, `coupon_amount`) VALUES
+(2, 1700, 0, 0, 0, 0, 200);
 
 --
 -- Indexes for dumped tables
@@ -160,7 +171,7 @@ ALTER TABLE `couponcode`
 -- AUTO_INCREMENT for table `otp_data`
 --
 ALTER TABLE `otp_data`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `stocks`
@@ -172,7 +183,7 @@ ALTER TABLE `stocks`
 -- AUTO_INCREMENT for table `user_data`
 --
 ALTER TABLE `user_data`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- Constraints for dumped tables
