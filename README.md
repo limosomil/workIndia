@@ -1,5 +1,9 @@
 # StockGameServer
 
+### Update 31/05/2020 12:00 PM
+- Created competition.js
+- Added /create for competition.js
+
 ### Update 30/05/2020 2:50 PM
  - Add dummy user for coupon (0000000000)
 ~~~~sql
