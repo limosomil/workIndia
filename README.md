@@ -1,5 +1,9 @@
 # StockGameServer
 
+### UPDADTE 1/06/2020 8:48 PM - Femin
+ - Connection Pool Implemented in coupon.js
+ - Code cleanup of coupon.js
+
 ### UPDADTE 1/06/2020 5:45 PM - Femin
  - Coupon Redeem endpoint fixed. Tested. Working.
  - Pool Connection File Created.

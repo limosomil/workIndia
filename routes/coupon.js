@@ -1,11 +1,11 @@
 const express = require('express');
 const util = require('util');
 const router = express.Router();
-const connection = require('../connection');
+const pool = require('../connectionPool');
 
 const moment = require('moment');
 
-router.post('/addCoupon', (req, res)=>{
+router.post('/addCoupon', async (req, res)=>{
 
     /*
         Sample Request :
@@ -22,14 +22,20 @@ router.post('/addCoupon', (req, res)=>{
     let expiry = req.body.expiry_date;
     let count = req.body.count;
 
-    if(coupon_code == undefined || amount == undefined || isNaN(amount) || expiry == undefined || count == undefined || isNaN(count))
-    {
-        res.json({
-            status: 313,
-            msg: "Invalid Data."
-        });
+    // const query = util.promisify(connection.query).bind(connection);
 
-    }else{
+    try{
+
+        if(coupon_code == undefined || amount == undefined || isNaN(amount) || expiry == undefined || count == undefined || isNaN(count))
+        {
+            res.json({
+                status: 314,
+                msg: "Invalid Data."
+            });
+
+            return;
+
+        }
 
         let currentTime = moment();
         let expiry_date = moment(expiry, 'DD-MM-YYYY HH:mm:ss');
@@ -39,37 +45,42 @@ router.post('/addCoupon', (req, res)=>{
             //Expiry date is before current date.
 
             res.json({
-                status: 311,
+                status: 312,
                 msg: "Expiry Date is before current date."
             });
 
-        }else{
+            return;
 
-            currentTime = currentTime.format('YYYY-MM-DD HH:mm:ss');
-            expiry_date = expiry_date.format('YYYY-MM-DD HH:mm:ss');
-
-            //General Use coupon.
-            connection.query(`INSERT INTO couponcode (code, amount, phone, date_added, expiry_date, count) VALUES ('${coupon_code}', '${amount}', '0000000000', '${currentTime}', '${expiry_date}', ${count})`, function(error, results, fields){
-                
-                if(error) throw error;
-                
-                let coupon_id = results.insertId;
-                
-                connection.query(`INSERT INTO log_coupon (coupon_id, coupon_code, amount, log_type, phone, user_id, date, coupon_type) VALUES ('${coupon_id}', '${coupon_code}', '${amount}', 'Add', '0000000000', null, '${moment().format('YYYY-MM-DD HH:mm:ss')}', 'g')`, function(error, results, fields){
-
-                    if(error) throw error; 
-
-                    res.json({
-                        status: 312,
-                        msg: "Added."
-                    });
-
-                });
-
-            });
         }
-    }
 
+        currentTime = currentTime.format('YYYY-MM-DD HH:mm:ss');
+        expiry_date = expiry_date.format('YYYY-MM-DD HH:mm:ss');
+
+        //General Use coupon.
+        let results = await pool.query(`INSERT INTO couponcode (code, amount, phone, date_added, expiry_date, count) VALUES ('${coupon_code}', '${amount}', '0000000000', '${currentTime}', '${expiry_date}', ${count})`);
+            
+        let coupon_id = results.insertId;
+        console.log(coupon_id);
+        
+        let log = await pool.query(`INSERT INTO log_coupon (coupon_id, coupon_code, amount, log_type, phone, user_id, date, coupon_type) VALUES ('${coupon_id}', '${coupon_code}', '${amount}', 'Add', '0000000000', null, '${moment().format('YYYY-MM-DD HH:mm:ss')}', 'g')`);
+
+        res.json({
+            status: 313,
+            msg: "Added."
+        });
+
+        return;
+
+    }catch(e){
+        console.trace(e);
+
+        res.json({
+            status: 311,
+            msg: "Internal Server Error."
+        });
+
+        return;
+    }
 });
 
 router.post('/redeem', async (req, res, next)=>{
@@ -84,7 +95,7 @@ router.post('/redeem', async (req, res, next)=>{
     try{
         
         //Find coupon and phone pair.
-        let search = await query(`SELECT * FROM couponcode WHERE code=? AND (phone='0000000000' OR phone=?)`, [couponcode, phone]);
+        let search = await pool.query(`SELECT * FROM couponcode WHERE code=? AND (phone='0000000000' OR phone=?)`, [couponcode, phone]);
         
         if(search.length == 0){
             // Coupon and phone pair not found.
@@ -117,7 +128,7 @@ router.post('/redeem', async (req, res, next)=>{
         if(search[0].phone=='0000000000'){
             ctype = 'g';
             //If it is a general Coupon, check if it is already used.
-            let couponlog = await query(`SELECT * FROM log_coupon WHERE phone=? AND coupon_code=? AND coupon_type='g'`, [phone, couponcode]);
+            let couponlog = await pool.query(`SELECT * FROM log_coupon WHERE phone=? AND coupon_code=? AND coupon_type='g'`, [phone, couponcode]);
 
             if(couponlog.length > 0){
                 //console.log("Coupon is already used.");
@@ -133,7 +144,7 @@ router.post('/redeem', async (req, res, next)=>{
         //Coupon is valid. Redeem it.
 
         //Get the wallet.
-        let wallet = await query(`SELECT * FROM wallet WHERE id = (SELECT id FROM user_data WHERE phone=?)`, [phone]);
+        let wallet = await pool.query(`SELECT * FROM wallet WHERE id = (SELECT id FROM user_data WHERE phone=?)`, [phone]);
         let balance = wallet[0].balance;
         let coupon_amt = wallet[0].coupon_amount;
         const walletid = wallet[0].id;
@@ -141,17 +152,17 @@ router.post('/redeem', async (req, res, next)=>{
         balance += amount;
         coupon_amt += amount;
 
-        let updateWallet = await query(`UPDATE wallet SET balance=?, coupon_amount=? WHERE id=?`, [balance, coupon_amt, walletid]);
-        let updatelogCoupon = await query(`INSERT INTO log_coupon (coupon_id, coupon_code, amount, log_type, phone, user_id, date, coupon_type) VALUES (?,?,?,?,?,?,?,?)`,
+        let updateWallet = await pool.query(`UPDATE wallet SET balance=?, coupon_amount=? WHERE id=?`, [balance, coupon_amt, walletid]);
+        let updatelogCoupon = await pool.query(`INSERT INTO log_coupon (coupon_id, coupon_code, amount, log_type, phone, user_id, date, coupon_type) VALUES (?,?,?,?,?,?,?,?)`,
          [couponid, couponcode, amount, 'redeem', phone, walletid, moment().format('YYYY-MM-DD HH:mm:ss'), ctype]);
 
         if(couponcount > 1){
             //Reduce Coupon Count
             couponcount--;
-            let updateCoupon = await query(`UPDATE couponcode SET count=? WHERE id=?`, [couponcount, couponid]);
+            let updateCoupon = await pool.query(`UPDATE couponcode SET count=? WHERE id=?`, [couponcount, couponid]);
         }else{
             //Delete Coupon
-            let updateCoupon = await query(`DELETE FROM couponcode WHERE id=?`, [couponid]);
+            let updateCoupon = await pool.query(`DELETE FROM couponcode WHERE id=?`, [couponid]);
         }
 
         res.json({
