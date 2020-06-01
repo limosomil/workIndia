@@ -1,10 +1,29 @@
 # StockGameServer
 
-### Update 01/06/2020 7:38 PM
+### Update 01/06/2020 7:38 PM - Somil
 
 - Added /getAllCompetitions
 
-### Update 31/05/2020 12:00 PM
+### UPDADTE 1/06/2020 5:45 PM - Femin
+ - Coupon Redeem endpoint fixed. Tested. Working.
+ - Pool Connection File Created.
+ - TODO.md updated
+
+### Update 31/05/2020 - Femin
+ - Change in Coupon Log table.
+~~~~sql
+DROP TABLE log_coupon;
+
+CREATE TABLE `stock_game`.`log_coupon` ( `id` INT NOT NULL AUTO_INCREMENT , `coupon_id` TEXT NOT NULL , `coupon_code` TEXT NOT NULL , `amount` DOUBLE NOT NULL , `log_type` TEXT NOT NULL , `phone` TEXT NOT NULL , `user_id` INT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+ALTER TABLE `log_coupon` ADD `date` DATETIME NOT NULL AFTER `user_id`;
+
+ALTER TABLE `log_coupon` ADD `type` VARCHAR(2) NOT NULL AFTER `date`;
+
+ALTER TABLE `log_coupon` CHANGE `type` `coupon_type` VARCHAR(2) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;
+~~~~
+
+### Update 31/05/2020 12:00 PM - Somil
 - Created competition.js
 - Added /create for competition.js
 
