@@ -11,6 +11,7 @@ app.use(bodyparser.json());
 const otp = require('./routes/otp');
 const profile = require('./routes/profile');
 const coupon = require('./routes/coupon');
+const competition = require('./routes/competition');
 
 app.get('/', (req,res)=>{
     res.send("If you are here, you probably shouldn't be on this server. Shoo away. Or I'll call 911.");
@@ -19,6 +20,7 @@ app.get('/', (req,res)=>{
 app.use('/otp', otp);
 app.use('/profile', profile);
 app.use('/coupon', coupon);
+app.use('/competition', competition);
 // app.get('/', (req,res) => res.send('Welcome To Stock Game Internal API!'));
 
 const port = 3000;

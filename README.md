@@ -1,11 +1,11 @@
 # StockGameServer
 
-### UPDADTE 1/06/2020
+### UPDADTE 1/06/2020 5:45 PM - Femin
  - Coupon Redeem endpoint fixed. Tested. Working.
  - Pool Connection File Created.
  - TODO.md updated
 
-### Update 31/05/2020
+### Update 31/05/2020 - Femin
  - Change in Coupon Log table.
 ~~~~sql
 DROP TABLE log_coupon;
@@ -18,6 +18,10 @@ ALTER TABLE `log_coupon` ADD `type` VARCHAR(2) NOT NULL AFTER `date`;
 
 ALTER TABLE `log_coupon` CHANGE `type` `coupon_type` VARCHAR(2) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;
 ~~~~
+
+### Update 31/05/2020 12:00 PM - Somil
+- Created competition.js
+- Added /create for competition.js
 
 ### Update 30/05/2020 2:50 PM
  - Add dummy user for coupon (0000000000)
@@ -44,6 +48,7 @@ CREATE TABLE `stock_game`.`competitions` ( `id` INT NOT NULL AUTO_INCREMENT ,  `
 
 ALTER TABLE `competitions` ADD `cashvalue` INT NOT NULL AFTER `entry_fee`;
 
+<<<<<<< HEAD
 CREATE TABLE `comp_entries` (
   `comp_id` int(11) NOT NULL,
   `player_id` int(11) NOT NULL,
@@ -60,6 +65,21 @@ ALTER TABLE `comp_entries`
   MODIFY `entry_id` int(11) NOT NULL AUTO_INCREMENT;
 
 ALTER TABLE `comp_entries` ADD CONSTRAINT `fk_payerid` FOREIGN KEY (`player_id`) REFERENCES `user_data`(`id`) ON DELETE CASCADE ON UPDATE CASCADE; ALTER TABLE `comp_entries` ADD CONSTRAINT `fk_compid` FOREIGN KEY (`comp_id`) REFERENCES `competitions`(`id`) ON DELETE CASCADE ON UPDATE RESTRICT;
+=======
+
+CREATE TABLE `comp_entries` (
+ `comp_id` int(11) NOT NULL,
+ `player_id` int(11) NOT NULL,
+ `entry_id` int(11) NOT NULL AUTO_INCREMENT,
+ `cash` int(11) NOT NULL,
+ PRIMARY KEY (`entry_id`),
+ KEY `comp_id` (`comp_id`),
+ KEY `player_id` (`player_id`),
+ CONSTRAINT `fk_compid` FOREIGN KEY (`comp_id`) REFERENCES `competitions` (`id`) ON DELETE CASCADE,
+ CONSTRAINT `fk_payerid` FOREIGN KEY (`player_id`) REFERENCES `user_data` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1
+
+>>>>>>> 479887f2787de55c3153b2044e71cc1eb52e8a26
 
 CREATE TABLE `stock_game`.`entry_description` ( `entry_id` INT NOT NULL , `scriptcode` INT NOT NULL , `buy_price` INT NOT NULL , `buy_qty` INT NOT NULL , `netvalue` INT NOT NULL ) ENGINE = InnoDB;
 
@@ -67,7 +87,8 @@ ALTER TABLE `entry_description` ADD CONSTRAINT `fk_entryid_desc` FOREIGN KEY (`e
 
 CREATE TABLE `stock_game`.`entry_description_bs` ( `entry_id` INT NOT NULL , `scriptcode` INT NOT NULL , `buy_price` INT NOT NULL , `buy_qty` INT NOT NULL , `netvalue` INT NOT NULL, `buy_or_sell` TINYINT NOT NULL ) ENGINE = InnoDB;
 
-ALTER TABLE `entry_description_bs` ADD CONSTRAINT `fk_entryid_bs` FOREIGN KEY (`entry_id`) REFERENCES `comp_entries`(`entry_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `entry_description_bs` ADD CONSTRAINT 
+`fk_entryid_bs` FOREIGN KEY (`entry_id`) REFERENCES `comp_entries`(`entry_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 ~~~
 
 ### Update 30/05/2020
