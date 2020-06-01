@@ -59,6 +59,44 @@ router.post('/create', (req, res)=>{
 
 });
 
+router.get('/getAllCompetitions', (req, res)=>{
+    connection.query(`SELECT * FROM competitions`, function (error, results, fields) {
+        if (error) throw error;
+        //console.log(results);
+        var objs = [];
+        for (var i = 0;i < results.length; i++) {
+            objs.push({id: results[i].id,
+                    type: results[i].type,
+                    entry_cost: results[i].entry_fee,
+                    virtual_cash: results[i].cashvalue,
+                    max_entries: results[i].max_entry,
+                    duraton: results[i].duration_day,
+                    last_day: moment(results[i].last_day).format('YYYY-MM-DD HH:mm:ss')
+
+                });
+        }
+        res.json({
+            status: 402,
+            count: `${results.length}`,
+            competitions : objs
+        });
+    });
+
+});
+
+
+router.get('/enterCompetition', (req, res)=>{
+
+//Validate Data
+//Get current prices
+//Deduct Amount
+//
+
+
+});
+
+
+
 function checkUndefined( value )
 {
     if ( value == undefined || isNaN(value))

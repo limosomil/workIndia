@@ -1,5 +1,9 @@
 # StockGameServer
 
+### Update 01/06/2020 7:38 PM
+
+- Added /getAllCompetitions
+
 ### Update 31/05/2020 12:00 PM
 - Created competition.js
 - Added /create for competition.js
