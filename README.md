@@ -3,6 +3,10 @@
 ### UPDADTE 1/06/2020 8:48 PM - Femin
  - Connection Pool Implemented in coupon.js
  - Code cleanup of coupon.js
+  
+### Update 01/06/2020 7:38 PM - Somil
+
+- Added /getAllCompetitions
 
 ### UPDADTE 1/06/2020 5:45 PM - Femin
  - Coupon Redeem endpoint fixed. Tested. Working.
@@ -52,24 +56,6 @@ CREATE TABLE `stock_game`.`competitions` ( `id` INT NOT NULL AUTO_INCREMENT ,  `
 
 ALTER TABLE `competitions` ADD `cashvalue` INT NOT NULL AFTER `entry_fee`;
 
-<<<<<<< HEAD
-CREATE TABLE `comp_entries` (
-  `comp_id` int(11) NOT NULL,
-  `player_id` int(11) NOT NULL,
-  `entry_id` int(11) NOT NULL,
-  `cash` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
-ALTER TABLE `comp_entries`
-  ADD PRIMARY KEY (`entry_id`),
-  ADD KEY `comp_id` (`comp_id`),
-  ADD KEY `player_id` (`player_id`);
-
-  ALTER TABLE `comp_entries`
-  MODIFY `entry_id` int(11) NOT NULL AUTO_INCREMENT;
-
-ALTER TABLE `comp_entries` ADD CONSTRAINT `fk_payerid` FOREIGN KEY (`player_id`) REFERENCES `user_data`(`id`) ON DELETE CASCADE ON UPDATE CASCADE; ALTER TABLE `comp_entries` ADD CONSTRAINT `fk_compid` FOREIGN KEY (`comp_id`) REFERENCES `competitions`(`id`) ON DELETE CASCADE ON UPDATE RESTRICT;
-=======
 
 CREATE TABLE `comp_entries` (
  `comp_id` int(11) NOT NULL,
@@ -83,7 +69,6 @@ CREATE TABLE `comp_entries` (
  CONSTRAINT `fk_payerid` FOREIGN KEY (`player_id`) REFERENCES `user_data` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1
 
->>>>>>> 479887f2787de55c3153b2044e71cc1eb52e8a26
 
 CREATE TABLE `stock_game`.`entry_description` ( `entry_id` INT NOT NULL , `scriptcode` INT NOT NULL , `buy_price` INT NOT NULL , `buy_qty` INT NOT NULL , `netvalue` INT NOT NULL ) ENGINE = InnoDB;
 
