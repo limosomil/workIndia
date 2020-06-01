@@ -1,5 +1,24 @@
 # StockGameServer
 
+### UPDADTE 1/06/2020
+ - Coupon Redeem endpoint fixed. Tested. Working.
+ - Pool Connection File Created.
+ - TODO.md updated
+
+### Update 31/05/2020
+ - Change in Coupon Log table.
+~~~~sql
+DROP TABLE log_coupon;
+
+CREATE TABLE `stock_game`.`log_coupon` ( `id` INT NOT NULL AUTO_INCREMENT , `coupon_id` TEXT NOT NULL , `coupon_code` TEXT NOT NULL , `amount` DOUBLE NOT NULL , `log_type` TEXT NOT NULL , `phone` TEXT NOT NULL , `user_id` INT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+ALTER TABLE `log_coupon` ADD `date` DATETIME NOT NULL AFTER `user_id`;
+
+ALTER TABLE `log_coupon` ADD `type` VARCHAR(2) NOT NULL AFTER `date`;
+
+ALTER TABLE `log_coupon` CHANGE `type` `coupon_type` VARCHAR(2) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;
+~~~~
+
 ### Update 30/05/2020 2:50 PM
  - Add dummy user for coupon (0000000000)
 ~~~~sql
@@ -24,6 +43,21 @@
 CREATE TABLE `stock_game`.`competitions` ( `id` INT NOT NULL AUTO_INCREMENT ,  `type` INT NOT NULL ,  `entry_fee` INT NOT NULL ,  `max_entry` INT NOT NULL ,  `entries_count` INT NOT NULL ,  `duration_day` INT NOT NULL ,  `day_added` DATETIME NOT NULL ,  `last_day` DATETIME NOT NULL ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
 
 ALTER TABLE `competitions` ADD `cashvalue` INT NOT NULL AFTER `entry_fee`;
+
+CREATE TABLE `comp_entries` (
+  `comp_id` int(11) NOT NULL,
+  `player_id` int(11) NOT NULL,
+  `entry_id` int(11) NOT NULL,
+  `cash` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `comp_entries`
+  ADD PRIMARY KEY (`entry_id`),
+  ADD KEY `comp_id` (`comp_id`),
+  ADD KEY `player_id` (`player_id`);
+
+  ALTER TABLE `comp_entries`
+  MODIFY `entry_id` int(11) NOT NULL AUTO_INCREMENT;
 
 ALTER TABLE `comp_entries` ADD CONSTRAINT `fk_payerid` FOREIGN KEY (`player_id`) REFERENCES `user_data`(`id`) ON DELETE CASCADE ON UPDATE CASCADE; ALTER TABLE `comp_entries` ADD CONSTRAINT `fk_compid` FOREIGN KEY (`comp_id`) REFERENCES `competitions`(`id`) ON DELETE CASCADE ON UPDATE RESTRICT;
 
