@@ -86,8 +86,6 @@ router.post('/addCoupon', async (req, res)=>{
 router.post('/redeem', async (req, res, next)=>{
     //Endpoint to redeem a coupon.
 
-    const query = util.promisify(connection.query).bind(connection);
-
     const phone = req.body.phone;
     const couponcode = req.body.couponcode;
     let amount = 0;
