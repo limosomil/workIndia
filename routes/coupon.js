@@ -5,6 +5,8 @@ const pool = require('../connectionPool');
 
 const moment = require('moment');
 
+const {authorizePhone, authorizeID} = require('../helpers/auth');
+
 router.post('/addCoupon', async (req, res)=>{
 
     /*
@@ -83,7 +85,7 @@ router.post('/addCoupon', async (req, res)=>{
     }
 });
 
-router.post('/redeem', async (req, res, next)=>{
+router.post('/redeem', authorizePhone, async (req, res, next)=>{
     //Endpoint to redeem a coupon.
 
     const phone = req.body.phone;

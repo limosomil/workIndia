@@ -2,8 +2,6 @@ const express = require('express');
 const bodyparser = require('body-parser');
 const connection = require('./connection');
 
-
-
 const app = express();
 app.use(bodyparser.json());
 
@@ -16,7 +14,6 @@ const competition = require('./routes/competition');
 app.get('/', (req,res)=>{
     res.send("If you are here, you probably shouldn't be on this server. Shoo away. Or I'll call 911.");
 });
-
 app.use('/otp', otp);
 app.use('/profile', profile);
 app.use('/coupon', coupon);
