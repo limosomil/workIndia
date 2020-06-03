@@ -13,6 +13,7 @@ router.post('/create', (req, res)=>{
         "max_entry":10, 
         "entries_count":0, 
         "duration_day":2,
+        "start_date": "30-05-2020"
         "last_day":"31-05-2020 23:00:20"
     }
     */
@@ -23,6 +24,7 @@ router.post('/create', (req, res)=>{
     let entries_count = req.body.entries_count;
     let duration_day = req.body.duration_day;
     let current_time = moment().format('YYYY-MM-DD HH:mm:ss');
+    let start_date = req.body.start_date;
     let last_day = req.body.last_day;
 
     if ( checkUndefined(type) || checkUndefined(entry_fee) || checkUndefined(cashvalue) || checkUndefined(max_entry) )
@@ -33,7 +35,7 @@ router.post('/create', (req, res)=>{
         
         });
     }
-    else if ( checkUndefined(entries_count) || checkUndefined(duration_day) || last_day == undefined )
+    else if ( checkUndefined(entries_count) || checkUndefined(duration_day) || last_day == undefined || start_date == undefined)
     {
         res.json({
             status: 401,
@@ -43,9 +45,12 @@ router.post('/create', (req, res)=>{
     }
     else
     {
-        let last = moment( last_day , 'DD-MM-YYYY HH:mm:ss' );
+        let last = moment( last_day , 'DD-MM-YYYY HH:mm:ss');
         last = last.format('YYYY-MM-DD HH:mm:ss');
-        connection.query(`INSERT INTO competitions (type, entry_fee, cashvalue, max_entry, entries_count, duration_day, day_added, last_day)  VALUES ('${type}', '${entry_fee}', '${cashvalue}','${max_entry}', '${entries_count}', '${duration_day}', '${current_time}', '${last}')`, function (error, results, fields) {
+
+        let start = moment(start_date, 'DD-MM-YYYY'); // Don't consider the time.
+        start = start.format('YYYY-MM-DD HH:mm:ss');
+        connection.query(`INSERT INTO competitions (type, entry_fee, cashvalue, max_entry, entries_count, duration_day, day_added, start_date, last_day)  VALUES ('${type}', '${entry_fee}', '${cashvalue}','${max_entry}', '${entries_count}', '${duration_day}', '${current_time}','${start}' ,'${last}')`, function (error, results, fields) {
             if (error) throw error;
             res.json({
                 status: 402,
