@@ -41,12 +41,13 @@ router.get('/enter', async (req, res)=>{
         }
 
         //Get competition details
-        const competition = await pool.query(`SELECT * FROM competitions WHERE id=?`, [competitionID]);
+        const competition = await pool.query(`SELECT * FROM competitions as A LEFT JOIN  shortamount  using(id) WHERE id=?`, [competitionID]);
 
         //Check competition status.
         const competitionStatus = competition[0].status;
         const competitionFee = competition[0].entry_fee;
         const cashvalue = competition[0].cashvalue;
+        const shortamount = competition[0].shortamount;
         let entries_count = competition[0].entries_count;
         
         if(competitionStatus != 1){
@@ -98,16 +99,21 @@ router.get('/enter', async (req, res)=>{
             //Stock Manipulation
             const stockJson = await createDictionary();
 
-            let totalAmount = 0;
+            let totalBAmount = 0;
+            let totalSAmount = 0;
+
 
             let insertString = "";
             let sqlList = [];
-
+            /*
+            type '0': Long
+            type '1': Short
+            */
             for(var i = 0; i<stockList.length; i++){    
 
                 if(stockJson[stockList[i].scripcode] == undefined){
                     res.json({
-                        status: "438",
+                        status: 438,
                         msg: "Invalid Scrip Code recieved."
                     })
 
@@ -120,26 +126,37 @@ router.get('/enter', async (req, res)=>{
                 const amount = currentCost * stockList[i].qty;
 
                 // console.log(`SCRIP : ${stockList[i].scripcode} COST : ${currentCost}`);
-                totalAmount += amount;
+                if(stockList[i].type == 0)
+                    totalBAmount += amount;
+                else
+                    totalSAmount += amount;
 
-                insertString += `(?, ?, ?, ?, ?),`;
-                sqlList.push(entryID, stockList[i].scripcode, currentCost, stockList[i].qty , amount);
+                insertString += `(?, ?, ?, ?, ?, ?),`;
+                sqlList.push(entryID, stockList[i].scripcode, currentCost, stockList[i].qty , amount, stockList[i].type);
 
             }
             insertString = insertString.slice(0, -1);
 
-            if(totalAmount > cashvalue){
+            if(totalBAmount > (cashvalue+totalSAmount)){
                 res.json({
                     status: 436,
                     msg: "Total Amount exceeds Balance."
                 });
                 return;
             }
+            if(totalSAmount > shortamount){
+                res.json({
+                    status: 439,
+                    msg: "Total Short Amount exceeds Limit."
+                });
+                return;
+            }
 
-            const cash = cashvalue - totalAmount;
+
+            const cash = cashvalue - totalBAmount + totalSAmount;
 
             //FIXME: Is check required for empty stock list ?
-            let addStockList = await pool.query(`INSERT INTO entry_description (entry_id, scripcode, stockprice, quantity, amount) VALUES ${insertString}`, sqlList);
+            let addStockList = await pool.query(`INSERT INTO entry_description_bs (entry_id, scripcode, stockprice, quantity, amount, buy_or_sell) VALUES ${insertString}`, sqlList);
 
             //Update Balance
             let updateBalance = await pool.query(`UPDATE comp_entries SET balance=? WHERE entry_id=?`, [cash, entryID]);
@@ -149,6 +166,7 @@ router.get('/enter', async (req, res)=>{
 
         //Update Competition entries.
         entries_count++;
+        //TODO: Rollback if entry count exceeded
         let updateCompetition = await pool.query(`UPDATE competitions SET entries_count=entries_count+1 WHERE id=? and entries_count< max_entry `, [entries_count,competitionID]);
         res.json({
             status: 437,
@@ -200,11 +218,12 @@ router.post('/edit', async (req, res)=>{
         const competitionID = entry[0].comp_id;
 
         //Get competition details
-        const competition = await pool.query(`SELECT * FROM competitions WHERE id=?`, [competitionID]);
+        const competition = await pool.query(`SELECT * FROM competitions as A LEFT JOIN  shortamount  using(id) WHERE id=?`, [competitionID]);
 
         //Check competition status.
         const competitionStatus = competition[0].status;
         const cashvalue = competition[0].cashvalue;
+        const shortamount = competition[0].shortamount;
         
         if(competitionStatus != 1){
 
@@ -216,7 +235,10 @@ router.post('/edit', async (req, res)=>{
         }
 
 
-        let totalAmount = 0;
+        
+        let totalBAmount = 0;
+        let totalSAmount = 0;
+
         let cash = cashvalue;
         
         if(stockList.length>0)
@@ -244,34 +266,45 @@ router.post('/edit', async (req, res)=>{
                 const amount = currentCost * stockList[i].qty;
 
                 // console.log(`SCRIP : ${stockList[i].scripcode} COST : ${currentCost}`);
-                totalAmount += amount;
+                if(stockList[i].type == 0)
+                    totalBAmount += amount;
+                else
+                    totalSAmount += amount;
 
-                insertString += `(?, ?, ?, ?, ?),`;
-                sqlList.push(entryID, stockList[i].scripcode, currentCost, stockList[i].qty , amount);
+                insertString += `(?, ?, ?, ?, ?,?),`;
+                sqlList.push(entryID, stockList[i].scripcode, currentCost, stockList[i].qty , amount, stockList[i].type);
 
             }
             insertString = insertString.slice(0, -1);
 
-            if(totalAmount > cashvalue){
+            if(totalBAmount > (cashvalue+totalSAmount)){
                 res.json({
-                    status: 515,
+                    status: 436,
                     msg: "Total Amount exceeds Balance."
                 });
                 return;
             }
+            if(totalSAmount > shortamount){
+                res.json({
+                    status: 439,
+                    msg: "Total Short Amount exceeds Limit."
+                });
+                return;
+            }
 
-            cash = cash - totalAmount;
+
+            cash = cashvalue - totalBAmount + totalSAmount;
 
 
             //DELETE ALL THE STOCK DESCRIPTION ENTRIES
-            const deleteStockDesc = await pool.query(`DELETE FROM entry_description WHERE entry_id=?`, [entryID]);
+            const deleteStockDesc = await pool.query(`DELETE FROM entry_description_bs WHERE entry_id=?`, [entryID]);
 
             //ADD NEW ENTRIES 
-            let addStockList = await pool.query(`INSERT INTO entry_description (entry_id, scripcode, stockprice, quantity, amount) VALUES ${insertString}`, sqlList);
+            let addStockList = await pool.query(`INSERT INTO entry_description_bs (entry_id, scripcode, stockprice, quantity, amount, buy_or_sell) VALUES ${insertString}`, sqlList);
 
         }else{
             //DELETE ALL THE STOCK DESCRIPTION ENTRIES
-            const deleteStockDesc = await pool.query(`DELETE FROM entry_description WHERE entry_id=?`, [entryID]);
+            const deleteStockDesc = await pool.query(`DELETE FROM entry_description_bs WHERE entry_id=?`, [entryID]);
         }
         
         let now = moment().format('YYYY-MM-DD HH:mm:ss');
@@ -290,7 +323,7 @@ router.post('/edit', async (req, res)=>{
     }
 });
 
-
+//TODO: Change status codes in type1/type2
 
 module.exports = router;
 

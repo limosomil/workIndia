@@ -4,7 +4,7 @@ const connection = require('./connection');
 
 const cron = require('node-cron');
 
-cron.schedule("*/5 9-16 * * 1-5", function(){
+cron.schedule("*/5 9-23 * * 1-5", function(){
   console.log("Entered at " + moment());
   superagent
   .get('https://us-central1-fcmtrial-dac95.cloudfunctions.net/app/getLive')

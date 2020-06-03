@@ -1,5 +1,26 @@
 # StockGameServer
 
+### Update 04/06/2020 01:36 AM- Somil
+
+- Created type2.js
+- Created table for shortamount
+- Edited /create to insert shortamount for type2
+- enter nad edit complete
+- Modified update entries in type1 and type2
+
+~~~~sql
+ALTER TABLE `entry_description_bs` CHANGE `scriptcode` `scripcode` INT(11) NOT NULL, CHANGE `price` `stockprice` INT(11) NOT NULL, CHANGE `qty` `quantity` INT(11) NOT NULL, CHANGE `netvalue` `amount` INT(11) NOT NULL;
+ALTER TABLE `entry_description_bs` CHANGE `scripcode` `scripcode` TEXT NOT NULL;
+ALTER TABLE `entry_description_bs` CHANGE `stockprice` `stockprice` DOUBLE NOT NULL, CHANGE `amount` `amount` DOUBLE NOT NULL;
+
+CREATE TABLE `shortamount` (
+ `id` int(11) NOT NULL,
+ `shortamount` double NOT NULL,
+ KEY `competition_id` (`competition_id`),
+ CONSTRAINT `fk_shortamount` FOREIGN KEY (`competition_id`) REFERENCES `competitions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1
+~~~~
+
 ### UPDATE 3/06/2020 11:15 AM - Femin
  - /edit added to type1.js 
 
