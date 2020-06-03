@@ -1,10 +1,14 @@
 # StockGameServer
 
-### UPDATE 3/06/2020 11:15 AM - FEMIN
+### UPDATE 3/06/2020 11:15 AM - Femin
  - Add start date column to competitions table
+ - Competition status column added to competitions table.
 ~~~~sql
   ALTER TABLE `competitions` ADD `start_date` DATETIME NOT NULL AFTER `day_added`;
+  ALTER TABLE `competitions` ADD `status` INT NOT NULL DEFAULT '1' AFTER `last_day`;
 ~~~~
+ - competition.js edited for start_date
+ - /editStatus endpoint added in competition.js **with a todo**
 
 ### UPDADTE 1/06/2020 8:48 PM - Femin
  - Connection Pool Implemented in coupon.js

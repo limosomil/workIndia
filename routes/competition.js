@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const connection = require('../connection');
+const pool = require('../connectionPool');
 const moment = require('moment');
 
 router.post('/create', (req, res)=>{
@@ -81,7 +82,7 @@ router.get('/getAllCompetitions', (req, res)=>{
                 });
         }
         res.json({
-            status: 402,
+            status: 412,
             count: `${results.length}`,
             competitions : objs
         });
@@ -97,6 +98,44 @@ router.get('/enterCompetition', (req, res)=>{
 //Deduct Amount
 //
 
+
+});
+
+router.get('/editStatus', async (req,res)=>{
+
+    try{
+        let competitionID = req.body.competitionID;
+        let status = req.body.status;
+
+        if(checkUndefined(competitionID), checkUndefined(status)){
+
+            res.json({
+                status: 421,
+                msg: "Invalid Data/Missing fields."
+            });
+            pool.releaseConnection();
+            return;
+         }
+
+        //TODO: A check for not allowing to open a expired competition.
+
+        let update = await pool.query(`UPDATE competitions SET status=? WHERE id=?`, [status, competitionID]);
+
+        res.json({
+            status: 423,
+            msg: "Status updated successfully."
+        });
+        pool.releaseConnection();
+        return;
+
+    }catch( e ){
+        res.json({
+            status: 422,
+            msg: "Internal Server Error."
+        });
+        pool.releaseConnection();
+        return;
+    }
 
 });
 
