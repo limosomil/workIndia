@@ -1,6 +1,9 @@
 # StockGameServer
 
 ### UPDATE 3/06/2020 11:15 AM - Femin
+ - /edit added to type1.js 
+
+### UPDATE 3/06/2020 11:15 AM - Femin
  - Add start date column to competitions table
  - Competition status column added to competitions table.
  - Renamed 'cash' to 'balance' in comp_entries

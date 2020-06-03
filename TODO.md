@@ -17,6 +17,8 @@
   - release connection before every json response.
   - Make a global function in helpers for checkUndefined function
 
+  - Admin end point to remove an entry. Must update all the three tables. Only for special requests.
+
 - Local Todo :
   - 1/0 field in competition for public and private competition
 
