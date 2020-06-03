@@ -1,6 +1,6 @@
 # StockGameServer
 
-### UPDATE 3/06/2020 11:15 PM - FEMIN
+### UPDATE 3/06/2020 11:15 AM - FEMIN
  - Add start date column to competitions table
 ~~~~sql
   ALTER TABLE `competitions` ADD `start_date` DATETIME NOT NULL AFTER `day_added`;
