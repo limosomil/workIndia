@@ -1,0 +1,158 @@
+const express = require('express');
+const router = express.Router();
+const pool = require('../../connectionPool');
+const moment = require('moment');
+const createDictionary = require('../../helpers/stockDictionary');
+
+function checkUndefined( value )
+{
+    if ( value == undefined || isNaN(value))
+    {
+        return true;
+    }
+    else
+        return false;
+
+}
+
+router.get('/enter', async (req, res)=>{
+
+    /*
+        Competition Status :
+        1 - Open.
+        2 - On Going.
+        3 - Closed.
+        4 - Cancelled.
+    */
+
+    try{
+
+        //Validate Data
+        const playerID = req.body.playerID;
+        const competitionID = req.body.competitionID;
+        const stockList = req.body.stockList;
+        if(checkUndefined(playerID) || checkUndefined(competitionID)){
+            
+            res.json({
+                status: 432,
+                msg: "Invalid/Missing data."
+            });
+            return;
+        }
+
+        //Get competition details
+        const competition = await pool.query(`SELECT * FROM competitions WHERE id=?`, [competitionID]);
+
+        //Check competition status.
+        const competitionStatus = competition[0].status;
+        const competitionFee = competition[0].entry_fee;
+        const cashvalue = competition[0].cashvalue;
+        let entries_count = competition[0].entries_count;
+        
+        if(competitionStatus != 1){
+            
+
+            res.json({
+                status: 433,
+                msg: "Competition is not open for entries."
+            });
+            return;
+        }
+
+        if(competition[0].max_entry == entries_count){
+            res.json({
+                status: 434,
+                msg: "Competition is full."
+            });
+            return;
+        }
+
+        //Check if wallet has enough balance.
+        const wallet = await pool.query(`SELECT * FROM wallet WHERE id=?`, [playerID]);
+
+        if(wallet[0].balance < competitionFee){
+            
+            res.json({
+                status: 435,
+                msg: "Not enough Balance."
+            });
+            return;
+        }
+
+        let newBalance = wallet[0].balance - competitionFee;
+        let moneyPlayed = wallet[0].money_played + competitionFee;
+
+        //Deduct from wallet, add to money_played
+        const deduct = pool.query(`UPDATE wallet SET balance=?, money_played=? WHERE id=?`, [newBalance, moneyPlayed, playerID]);
+
+        //get player username
+        const username = (await pool.query(`SELECT username FROM user_data WHERE id=?`, [playerID]))[0].username;
+
+        //Update Entries table.
+        const date_added = moment().format('YYYY-MM-DD HH:mm:ss');
+        const entryInsert = await pool.query(`INSERT into comp_entries (comp_id, player_id, username, balance, date_added, date_edited) VALUES (?,?,?,?,?,?)`, [competitionID, playerID, username, cashvalue, date_added, date_added]);
+        const entryID = entryInsert.insertId;
+
+        //Stock Manipulation
+        const stockJson = await createDictionary();
+
+        let totalAmount = 0;
+    
+        let insertString = "";
+        let sqlList = [];
+    
+        for(var i = 0; i<stockList.length; i++){    
+    
+            const currentCost = stockJson[stockList[i].scripcode].CLOSE_PRICE;
+            const amount = currentCost * stockList[i].qty;
+    
+            // console.log(`SCRIP : ${stockList[i].scripcode} COST : ${currentCost}`);
+            totalAmount += amount;
+    
+            insertString += `(?, ?, ?, ?, ?),`;
+            sqlList.push(entryID, stockList[i].scripcode, currentCost, stockList[i].qty , amount);
+    
+        }
+        insertString = insertString.slice(0, -1);
+
+        if(totalAmount > cashvalue){
+            res.json({
+                status: 436,
+                msg: "Total Amount exceeds Balance."
+            });
+            return;
+        }
+
+        const cash = cashvalue - totalAmount;
+
+        let addStockList = await pool.query(`INSERT INTO entry_description (entry_id, scripcode, stockprice, quantity, amount) VALUES ${insertString}`, sqlList);
+
+        //Update Balance
+        let updateBalance = await pool.query(`UPDATE comp_entries SET balance=? WHERE entry_id=?`, [cash, entryID]);
+        
+        //TODO: Check entry count again.
+
+        //Update Competition entries.
+        entries_count++;
+        let updateCompetition = await pool.query(`UPDATE competitions SET entries_count=? WHERE id=?`, [entries_count,competitionID]);
+
+        res.json({
+            status: 437,
+            msg: "Entry Added."
+        });
+        
+
+
+    }catch(e){
+        console.log(e);
+        res.json({
+            status: 431,
+            msg: "Internal Server Error."
+        });
+    }
+
+});
+
+
+
+module.exports = router;

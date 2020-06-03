@@ -4,6 +4,10 @@ const connection = require('../connection');
 const pool = require('../connectionPool');
 const moment = require('moment');
 
+const type1 = require('./competitionFiles/type1');
+
+router.use('/type1', type1);
+
 router.post('/create', (req, res)=>{
     // create a new competition by admin
     /* Sample Input
@@ -49,7 +53,7 @@ router.post('/create', (req, res)=>{
         let last = moment( last_day , 'DD-MM-YYYY HH:mm:ss');
         last = last.format('YYYY-MM-DD HH:mm:ss');
 
-        let start = moment(start_date, 'DD-MM-YYYY'); // Don't consider the time.
+        let start = moment(start_date, 'DD-MM-YYYY'); // TODO: Make the default start time to 9:15 or whatever the BSE timing is.
         start = start.format('YYYY-MM-DD HH:mm:ss');
         connection.query(`INSERT INTO competitions (type, entry_fee, cashvalue, max_entry, entries_count, duration_day, day_added, start_date, last_day)  VALUES ('${type}', '${entry_fee}', '${cashvalue}','${max_entry}', '${entries_count}', '${duration_day}', '${current_time}','${start}' ,'${last}')`, function (error, results, fields) {
             if (error) throw error;
@@ -91,16 +95,6 @@ router.get('/getAllCompetitions', (req, res)=>{
 });
 
 
-router.get('/enterCompetition', (req, res)=>{
-
-//Validate Data
-//Get current prices
-//Deduct Amount
-//
-
-
-});
-
 router.get('/editStatus', async (req,res)=>{
 
     try{
@@ -108,12 +102,11 @@ router.get('/editStatus', async (req,res)=>{
         let status = req.body.status;
 
         if(checkUndefined(competitionID), checkUndefined(status)){
-
+            
             res.json({
                 status: 421,
                 msg: "Invalid Data/Missing fields."
             });
-            pool.releaseConnection();
             return;
          }
 
@@ -121,35 +114,22 @@ router.get('/editStatus', async (req,res)=>{
 
         let update = await pool.query(`UPDATE competitions SET status=? WHERE id=?`, [status, competitionID]);
 
+        
         res.json({
             status: 423,
             msg: "Status updated successfully."
         });
-        pool.releaseConnection();
         return;
 
     }catch( e ){
+        
         res.json({
             status: 422,
             msg: "Internal Server Error."
         });
-        pool.releaseConnection();
         return;
     }
 
 });
-
-
-
-function checkUndefined( value )
-{
-    if ( value == undefined || isNaN(value))
-    {
-        return true;
-    }
-    else
-        return false;
-
-}
 
 module.exports = router;

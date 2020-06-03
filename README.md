@@ -3,12 +3,31 @@
 ### UPDATE 3/06/2020 11:15 AM - Femin
  - Add start date column to competitions table
  - Competition status column added to competitions table.
+ - Renamed 'cash' to 'balance' in comp_entries
+ - MANY MORE CHANGES IN DATABASE. PLEASE SEE FOLLOWING SQL QUERIES FOR MORE DETAILS.
 ~~~~sql
   ALTER TABLE `competitions` ADD `start_date` DATETIME NOT NULL AFTER `day_added`;
   ALTER TABLE `competitions` ADD `status` INT NOT NULL DEFAULT '1' AFTER `last_day`;
+  ALTER TABLE `comp_entries` CHANGE `cash` `balance` INT(11) NOT NULL;
+
+  ALTER TABLE `entry_description` CHANGE `scriptcode` `scripcode` INT(11) NOT NULL, CHANGE `buy_price` `stockprice` INT(11) NOT NULL, CHANGE `buy_qty` `quantity` INT(11) NOT NULL, CHANGE `netvalue` `amount` INT(11) NOT NULL;
+
+  ALTER TABLE `user_data` CHANGE `username` `username` VARCHAR(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
+
+  ALTER TABLE `comp_entries` ADD `username` VARCHAR(20) NOT NULL AFTER `player_id`;
+
+  ALTER TABLE `comp_entries` ADD `date_added` DATETIME NOT NULL AFTER `balance`, ADD `date_edited` DATETIME NOT NULL AFTER `date_added`;
+
+  ALTER TABLE `entry_description` CHANGE `scripcode` `scripcode` TEXT NOT NULL;
+
+  ALTER TABLE `comp_entries` CHANGE `balance` `balance` DOUBLE NOT NULL;
+
+  ALTER TABLE `entry_description` CHANGE `stockprice` `stockprice` DOUBLE NOT NULL, CHANGE `amount` `amount` DOUBLE NOT NULL;
 ~~~~
  - competition.js edited for start_date
  - /editStatus endpoint added in competition.js **with a todo**
+ - /competitionFiles folder will contain all types of competitionFiles. 
+ - /competitionFiles/type1/entry end point created.
 
 ### UPDADTE 1/06/2020 8:48 PM - Femin
  - Connection Pool Implemented in coupon.js

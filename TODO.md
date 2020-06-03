@@ -13,6 +13,11 @@
   - Connection Pool
   - Convert all files to use Promisified Connection Pool.
   - Add return wherever response is sent.
+  - USE LOGS EVERYWHERE
+  - release connection before every json response.
+  - Make a global function in helpers for checkUndefined function
 
 - Local Todo :
   - 1/0 field in competition for public and private competition
+
+- Possible loopholes, username is not a foreign key in comp_entries
