@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const connection = require('../connection');
+const pool = require('../connectionPool');
 
 const moment = require('moment');
+const jwt = require('jsonwebtoken');
 
 router.post('/generate', (req,res)=>{
 
@@ -40,7 +42,7 @@ router.post('/generate', (req,res)=>{
                     res.json({
                         status: 103,
                         msg: `OTP for ${req.body.phone} created.`,
-                        otp: otp //FIXME: Remove this after texting
+                        otp: otp //FIXME: Remove this after testing
                     });
                 });
             }
@@ -48,87 +50,39 @@ router.post('/generate', (req,res)=>{
     }
 });
 
+function generateLogin_Token(userdata){
+    return new Promise(async (resolve, reject)=>{
 
+        try{
+            const loginTokenText = `${userdata.phone}+${moment().valueOf()}`;
 
-router.post(
-    '/verify',
-    (req, res) => {
-        let phone = req.body.phone;
-        let otp = String(req.body.otp);
+            let updateLoginTokenInDB = await pool.query(`UPDATE user_data SET login_token=? WHERE id=?`, [loginTokenText, userdata.id]);
 
-
-        if(otp != undefined && phone !=undefined && otp.length == 6 && phone.length == 10 && !isNaN(otp) && !isNaN(phone)){
-            connection.query(`SELECT * FROM otp_data WHERE otp='${parseInt(otp)}' AND phone='${phone}'`, function(error, results, fields){
-                if(error) throw error;
+            jwt.sign({userID: userdata.id, phone: userdata.phone, login_token:loginTokenText}, "mysecret", (err, token)=>{
+                if(err) throw err;
                 
-                if(results.length == 1){
+                userdata.login_token = token;
 
-                    OTPdate = moment(results[0].date_created);
-                    current_time = moment();
-                    minutes_old = (current_time-OTPdate)/60000;
-
-                    // console.log(`Current Time : ${current_time}\nOTP Date : ${OTPdate}\nMinutesOld : ${minutes_old}`);
-
-                    if(minutes_old > 10)
-                    {
-                        //If OTP is expired, this will be executed.
-
-                        //TODO: Delete expired OTP from the database.
-                        res.json(
-                            {
-                                status: 113,
-                                msg: "Otp is expired."
-                            }
-                        );
-
-                    }else{
-                        //Check if new user, or old user login.
-                        var userdata;
-                        connection.query(`SELECT * FROM user_data WHERE phone='${phone}'`, function(error, results, fields){
-                            if (error) throw error;
-
-                            if(results.length > 0){
-                                //OLD USER.
-                                userdata = results[0];
-
-                                delete_otpentry(res, otp, phone, userdata, 115, "Login Successful.");
-                            }else{
-                                //NEW USER.
-                                connection.query(`INSERT INTO user_data (phone, date_registered, usr_setupdone, type) VALUES ('${phone}', '${current_time.format('YYYY-MM-DD hh:mm:ss')}', FALSE, 1)`, function(error, results, fields){
-                                    if(error) throw error;
-
-                                    idInserted = results.insertId;
-
-                                    //Initialize wallet.
-                                    connection.query(`INSERT INTO wallet (id) VALUES (${idInserted})`, function(error, results, fields){
-
-                                        if(error) throw error;
-                                    
-                                        //fetch user data to send a json response.
-                                        connection.query(`SELECT * FROM user_data WHERE id=${idInserted}`, function(error, results, fields){
-                                            if(error) throw error;
-    
-                                            userdata = results[0];
-    
-                                            delete_otpentry(res, otp, phone, userdata, 114, "New User Created.");
-                                        });
-
-                                    });
-                                });
-                            }
-                        
-                        });
-                    }
-
-                }else{
-                    // OTP and Phone Number Pair does not match in the database.
-                    res.json({
-                        status: 112,
-                        msg: 'Invalid OTP'
-                    });
-                }
+                resolve(userdata);
             });
-        }else{
+        }catch(e){
+
+            reject(e);
+
+        }
+
+    });
+}
+
+router.post('/verify', async (req, res)=>{
+
+    let phone = req.body.phone;
+    let otp = String(req.body.otp);
+
+    try{
+
+        if(otp==undefined || isNaN(otp)){
+
             res.json(
                 {
                     //Invalid Post Data.
@@ -136,9 +90,90 @@ router.post(
                     msg: 'Invalid Data'
                 }
             );
+    
+            return;
+    
         }
+    
+        let findOtp = await pool.query(`SELECT * FROM otp_data WHERE otp=? AND phone=?`, [otp, phone]);
+
+        if( ! findOtp.length > 0)
+        {
+            //OTP not found.
+            res.json({
+                status: 112,
+                msg: 'Invalid OTP'
+            });
+            return;
+        }
+
+        OTPdate = moment(findOtp[0].date_created);
+        current_time = moment();
+        minutes_old = (current_time-OTPdate)/60000;
+
+        if(minutes_old > 10)
+        {
+            //If OTP is expired, this will be executed.
+
+            //TODO: Delete expired OTP from the database.
+            res.json(
+                {
+                    status: 113,
+                    msg: "Otp is expired."
+                }
+            );
+
+            return;
+
+        }
+
+        var userdata;
+        let userResult = await pool.query(`SELECT * FROM user_data WHERE phone=?`, [phone]);
+
+        let statusCode = 115;
+
+        if(userResult.length == 0){
+            //new user
+
+            let newUser = await pool.query(`INSERT INTO user_data (phone, date_registered, usr_setupdone, type) VALUES (?, ?, FALSE, 1)`, [phone, current_time.format('YYYY-MM-DD hh:mm:ss')]);
+
+            let idInserted = newUser.insertId;
+
+            //Initialize wallet.
+            let initWallet = await pool.query(`INSERT INTO wallet (id) VALUES (?)`, [idInserted]);
+
+            //Fetch userDetails
+            let fetchNewUser = await pool.query(`SELECT * FROM user_data WHERE id=?`,[idInserted]);
+
+            userdata = fetchNewUser[0];
+
+            statusCode = 114;
+
+        }else{
+
+            //old user
+
+            userdata = results[0];
+
+        }
+
+        //Get Login Token
+        userdata = await generateLogin_Token(userdata);
+
+        delete_otpentry(res, otp, phone, userdata, statusCode, "Login Successful.");
+
+
+    }catch(e){
+
+        console.log(e);
+        res.json({
+            status: 116,
+            msg: "Internal Server Error."
+        });
+
     }
-);
+
+});
 
 function delete_otpentry(res, otp, phone, userdata, status, msg){
     //Since OTP is verified, delete it from the otp_data table.
