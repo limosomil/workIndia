@@ -1,5 +1,11 @@
 # StockGameServer
 
+### Update 5/06/2020 - Femin
+ - On Cascase for wallet :
+~~~~sql
+  ALTER TABLE `wallet` DROP FOREIGN KEY `wallet_ibfk_1`; ALTER TABLE `wallet` ADD CONSTRAINT `wallet_ibfk_1` FOREIGN KEY (`id`) REFERENCES `user_data`(`id`) ON DELETE CASCADE ON UPDATE RESTRICT;
+~~~~
+
 ### Update 04/06/2020 01:36 AM- Somil
 
 - Created type2.js
