@@ -153,7 +153,7 @@ router.post('/verify', async (req, res)=>{
 
             //old user
 
-            userdata = results[0];
+            userdata = userResult[0];
 
         }
 
