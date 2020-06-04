@@ -4,6 +4,7 @@ const connection = require('../connection');
 const pool = require('../connectionPool');
 
 const moment = require('moment');
+const jwt = require('jsonwebtoken');
 
 router.post('/generate', (req,res)=>{
 
@@ -41,7 +42,7 @@ router.post('/generate', (req,res)=>{
                     res.json({
                         status: 103,
                         msg: `OTP for ${req.body.phone} created.`,
-                        otp: otp //FIXME: Remove this after texting
+                        otp: otp //FIXME: Remove this after testing
                     });
                 });
             }
@@ -57,16 +58,16 @@ function generateLogin_Token(userdata){
 
             let updateLoginTokenInDB = await pool.query(`UPDATE user_data SET login_token=? WHERE id=?`, [loginTokenText, userdata.id]);
 
-            userdata.login_token = loginTokenText;
+            jwt.sign({userID: userdata.id, phone: userdata.phone, login_token:loginTokenText}, "mysecret", (err, token)=>{
+                if(err) throw err;
+                
+                userdata.login_token = token;
 
-            resolve(userdata);
+                resolve(userdata);
+            });
         }catch(e){
 
-            console.log(e);
-            res.json({
-                status: 116,
-                msg: "Internal Server Error."
-            });
+            reject(e);
 
         }
 
