@@ -29,6 +29,8 @@ function authorizePhone(req, res, next){
 
         }
 
+        //Check login token in db.
+
         req.userID = user.userID;
         req.phone = user.phone;
         next();
@@ -63,6 +65,8 @@ function authorizeID(req, res, next){
             return;
 
         }
+
+        //Check login token in Db.
 
         req.userID = user.userID;
         req.phone = user.phone;
