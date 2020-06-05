@@ -1,5 +1,11 @@
 # StockGameServer
 
+### Update 5/6/2020 - Somil
+- Cleaned profile.js
+- Added auth to type1, type2, competitioon
+- Made change in authID Status 2
+
+
 ### Update 5/06/2020 - Femin
  - On Cascase for wallet :
 ~~~~sql
