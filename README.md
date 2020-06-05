@@ -1,5 +1,8 @@
 # StockGameServer
 
+### Update 5/6/2020 - Somil
+- Cleaned profile.js
+
 ### Update 5/06/2020 - Femin
  - On Cascase for wallet :
 ~~~~sql
