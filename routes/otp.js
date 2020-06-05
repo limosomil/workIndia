@@ -6,48 +6,53 @@ const pool = require('../connectionPool');
 const moment = require('moment');
 const jwt = require('jsonwebtoken');
 
-router.post('/generate', (req,res)=>{
+router.post('/generate', async(req, res)=>{
 
-    phone = req.body.phone;
-    if(phone == undefined || phone.length != 10 || isNaN(phone)){
-        //If the post data does not contain the phone number.
+    try{
+
+        phone = req.body.phone;
+
+        if(phone == undefined || phone.length != 10 || isNaN(phone)){
+            //If the post data does not contain the phone number.
+            res.json({
+                status: 101,
+                msg: "Invalid Data."
+            });
+            return;
+        }
+
+        const otpDb = await pool.query(`SELECT * FROM otp_data WHERE phone=?`, [phone]);
+
+        if(otpDb.length > 0){
+            res.json(
+                {
+                    status: 102,
+                    msg: 'OTP is already requested.'
+                }
+            );
+            return;
+        }
+
+        // Generate new OTP and add it to otp_data table with current timestamp
+        let otp = Math.floor(100000 + Math.random() * 900000);
+        let current_time = moment().format('YYYY-MM-DD HH:mm:ss'); //current timestamp formatted for mysql
+
+        const insertOtp = await pool.query(`INSERT INTO otp_data (otp, phone, date_created) VALUES (?, ?, ?)`, [otp, phone, current_time]);
+
         res.json({
-            status: 101,
-            msg: "Invalid Data."
+            status: 103,
+            msg: `OTP for ${req.body.phone} created.`,
+            otp: otp //FIXME: Remove this after testing
         });
 
-    }else{
-
-        //Check if otp is already requested in otp_data table
-        connection.query(`SELECT * FROM otp_data WHERE phone='${req.body.phone}'`, function (error, results, fields) {
-            if (error) throw error;
-
-            if(results.length > 0){
-
-                //OTP is already requestied.
-
-                res.json(
-                    {
-                        status: 102,
-                        msg: 'OTP is already requested.'
-                    }
-                );
-            }else{
-                // Generate new OTP and add it to otp_data table with current timestamp
-                let otp = Math.floor(100000 + Math.random() * 900000);
-                let current_time = moment().format('YYYY-MM-DD HH:mm:ss'); //current timestamp formatted for mysql
-                connection.query(`INSERT INTO otp_data (otp, phone, date_created) VALUES ('${otp}', '${req.body.phone}', '${current_time}')`, function (error, results, fields) {
-                    if (error) throw error;
-
-                    res.json({
-                        status: 103,
-                        msg: `OTP for ${req.body.phone} created.`,
-                        otp: otp //FIXME: Remove this after testing
-                    });
-                });
-            }
+    }catch(e){
+        console.log(e);
+        res.json({
+            status: 106,
+            msg: "Internal Server Error."
         });
     }
+
 });
 
 function generateLogin_Token(userdata){
@@ -81,7 +86,7 @@ router.post('/verify', async (req, res)=>{
 
     try{
 
-        if(otp==undefined || isNaN(otp)){
+        if(otp==undefined || isNaN(otp) || phone == undefined || isNaN(phone) || phone.length!=10){
 
             res.json(
                 {
@@ -116,6 +121,9 @@ router.post('/verify', async (req, res)=>{
             //If OTP is expired, this will be executed.
 
             //TODO: Delete expired OTP from the database.
+
+            const deleteExpired = await pool.query(`DELETE FROM otp_data WHERE id=?`, [findOtp[0].id]);
+
             res.json(
                 {
                     status: 113,
