@@ -169,6 +169,7 @@ router.post('/verify', async (req, res)=>{
 
         delete_otpentry(res, otp, phone, userdata, statusCode, "Login Successful.");
 
+        return;
 
     }catch(e){
 
@@ -182,16 +183,14 @@ router.post('/verify', async (req, res)=>{
 
 });
 
-function delete_otpentry(res, otp, phone, userdata, status, msg){
+async function delete_otpentry(res, otp, phone, userdata, status, msg){
     //Since OTP is verified, delete it from the otp_data table.
-    connection.query(`DELETE FROM otp_data WHERE otp='${parseInt(otp)}' AND phone='${phone}'`, function(error, results, fields){
-        if(error) throw error;
-
-        res.json({
-            status: status,
-            msg: msg,
-            user: userdata
-        });
+    let del = await pool.query(`DELETE FROM otp_data WHERE otp=? AND phone=?`, [otp, phone]);
+        
+    res.json({
+        status: status,
+        msg: msg,
+        user: userdata
     });
 }
 
