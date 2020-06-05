@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const connection = require('../connection');
+// const connection = require('../connection');
 const pool = require('../connectionPool');
 const moment = require('moment');
 
