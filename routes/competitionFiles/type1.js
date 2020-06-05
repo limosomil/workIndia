@@ -3,6 +3,7 @@ const router = express.Router();
 const pool = require('../../connectionPool');
 const moment = require('moment');
 const createDictionary = require('../../helpers/stockDictionary');
+const {authorizePhone, authorizeID} = require('../../helpers/auth');
 
 function checkUndefined( value )
 {
@@ -15,7 +16,7 @@ function checkUndefined( value )
 
 }
 
-router.get('/enter', async (req, res)=>{
+router.get('/enter', authorizeID, async (req, res)=>{
 
     /*
         Competition Status :
@@ -166,7 +167,7 @@ router.get('/enter', async (req, res)=>{
 
 });
 
-router.post('/edit', async (req, res)=>{
+router.post('/edit',authorizeID, async (req, res)=>{
 
     try{
 

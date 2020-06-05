@@ -91,7 +91,7 @@ function authorizeID(req, res, next){
             return;
         }
 
-        if(req.body.playerID == undefined || isNaN(req.body.phone) || req.body.playerID!=user.userID){
+        if(req.body.playerID == undefined || isNaN(req.body.playerID) || req.body.playerID!=user.userID){
 
             res.json({
                 status: 002,
