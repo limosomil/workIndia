@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const connection = require('../connection');
 const pool = require('../connectionPool');
 
 const moment = require('moment');
@@ -120,7 +119,7 @@ router.post('/verify', async (req, res)=>{
         {
             //If OTP is expired, this will be executed.
 
-            //TODO: Delete expired OTP from the database.
+            //Delete expired OTP from the database.
 
             const deleteExpired = await pool.query(`DELETE FROM otp_data WHERE id=?`, [findOtp[0].id]);
 
