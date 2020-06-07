@@ -5,6 +5,8 @@ const pool = require('../connectionPool');
 const moment = require('moment');
 const jwt = require('jsonwebtoken');
 
+const superagent = require('superagent');
+
 router.post('/generate', async(req, res)=>{
 
     try{
@@ -51,10 +53,18 @@ router.post('/generate', async(req, res)=>{
 
         const insertOtp = await pool.query(`INSERT INTO otp_data (otp, phone, date_created) VALUES (?, ?, ?)`, [otp, phone, current_time]);
 
+        
+        //FIXME: Fix 2factor api.
+        superagent
+            .get(`https://2factor.in/API/V1/43f5a770-a758-11ea-9fa5-0200cd936042/SMS/+91${phone}/${otp}`)
+            .end((err, res)=>{
+                if(err);
+            });
+
+
         res.json({
             status: 103,
-            msg: `OTP for ${req.body.phone} created.`,
-            otp: otp //FIXME: Remove this after testing
+            msg: `OTP for ${req.body.phone} created.`
         });
 
     }catch(e){
