@@ -9,13 +9,13 @@ router.post('/', async (req,res)=>{
 
     try{
 
-        const userId = req.body.playerId;
+        const userID = req.body.userID;
         const username = req.body.username;
         const phone = req.body.phone;
         const login_token = req.body.login_token;
         const usr_setupdone = req.body.usr_setupdone;
 
-        if( userId == undefined || isNaN(userId) || (username==undefined && usr_setupdone==1) || phone==undefined || login_token==undefined || isNaN(phone) || phone.length!=10 ){
+        if( userID == undefined || isNaN(userID) || (username==undefined && usr_setupdone==1) || phone==undefined || login_token==undefined || isNaN(phone) || phone.length!=10 ){
 
             //Invalid Data. Log out.
             res.json({
@@ -27,7 +27,7 @@ router.post('/', async (req,res)=>{
 
         }
 
-        const userDb = await pool.query(`SELECT * FROM user_data WHERE id=? AND phone=?`, [userId, phone]);
+        const userDb = await pool.query(`SELECT * FROM user_data WHERE id=? AND phone=?`, [userID, phone]);
 
         if(userDb.length != 1){
 
@@ -44,7 +44,7 @@ router.post('/', async (req,res)=>{
 
             if(err) throw err;
 
-            if(user.userID != userId || user.phone != phone){
+            if(user.userID != userID || user.phone != phone){
                 res.json({
                     status: 993,
                     msg: "Invalid Token. Logout."
