@@ -23,13 +23,26 @@ router.post('/generate', async(req, res)=>{
         const otpDb = await pool.query(`SELECT * FROM otp_data WHERE phone=?`, [phone]);
 
         if(otpDb.length > 0){
-            res.json(
-                {
-                    status: 102,
-                    msg: 'OTP is already requested.'
-                }
-            );
-            return;
+
+            //TODO: Check if already requested OTP is expired.
+
+            let OTPdate = moment(otpDb[0].date_created);
+            let current_time = moment();
+            let minutes_old = (current_time-OTPdate)/60000;
+
+            if(minutes_old > 10){
+
+                const deleteExpired = await pool.query(`DELETE FROM otp_data WHERE id=?`, [otpDb[0].id]);
+
+            }else{
+                res.json(
+                    {
+                        status: 102,
+                        msg: 'OTP is already requested.'
+                    }
+                );
+                return;
+            }
         }
 
         // Generate new OTP and add it to otp_data table with current timestamp
