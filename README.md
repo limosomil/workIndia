@@ -1,5 +1,8 @@
 # StockGameServer
 
+### Update 9/6/20 00:13am
+- Changed playerID to userID in type1/2.js
+
 ### Update 5/6/2020 - Somil
 - Cleaned profile.js
 - Added auth to type1, type2, competitioon
