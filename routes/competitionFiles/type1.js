@@ -29,10 +29,10 @@ router.get('/enter', authorizeID, async (req, res)=>{
     try{
 
         //Validate Data
-        const playerID = req.body.userID;
+        const userID = req.body.userID;
         const competitionID = req.body.competitionID;
         const stockList = req.body.stockList;
-        if(checkUndefined(playerID) || checkUndefined(competitionID)){
+        if(checkUndefined(userID) || checkUndefined(competitionID)){
             
             res.json({
                 status: 432,
@@ -69,7 +69,7 @@ router.get('/enter', authorizeID, async (req, res)=>{
         }
 
         //Check if wallet has enough balance.
-        const wallet = await pool.query(`SELECT * FROM wallet WHERE id=?`, [playerID]);
+        const wallet = await pool.query(`SELECT * FROM wallet WHERE id=?`, [userID]);
 
         if(wallet[0].balance < competitionFee){
             
@@ -84,14 +84,14 @@ router.get('/enter', authorizeID, async (req, res)=>{
         let moneyPlayed = wallet[0].money_played + competitionFee;
 
         //Deduct from wallet, add to money_played
-        const deduct = pool.query(`UPDATE wallet SET balance=?, money_played=? WHERE id=?`, [newBalance, moneyPlayed, playerID]);
+        const deduct = pool.query(`UPDATE wallet SET balance=?, money_played=? WHERE id=?`, [newBalance, moneyPlayed, userID]);
 
         //get player username
-        const username = (await pool.query(`SELECT username FROM user_data WHERE id=?`, [playerID]))[0].username;
+        const username = (await pool.query(`SELECT username FROM user_data WHERE id=?`, [userID]))[0].username;
 
         //Update Entries table.
         const date_added = moment().format('YYYY-MM-DD HH:mm:ss');
-        const entryInsert = await pool.query(`INSERT into comp_entries (comp_id, player_id, username, balance, date_added, date_edited) VALUES (?,?,?,?,?,?)`, [competitionID, playerID, username, cashvalue, date_added, date_added]);
+        const entryInsert = await pool.query(`INSERT into comp_entries (comp_id, player_id, username, balance, date_added, date_edited) VALUES (?,?,?,?,?,?)`, [competitionID, userID, username, cashvalue, date_added, date_added]);
         const entryID = entryInsert.insertId;
 
         if(stockList.length>0){
@@ -171,11 +171,11 @@ router.post('/edit',authorizeID, async (req, res)=>{
 
     try{
 
-        const playerID = req.body.userID; //FIXME: Not required. Only used for auth.
+        const userID = req.body.userID; //FIXME: Not required. Only used for auth.
         const entryID = req.body.entryID;
         const stockList = req.body.stockList;
 
-        if(checkUndefined(playerID) || checkUndefined(entryID)){
+        if(checkUndefined(userID) || checkUndefined(entryID)){
                 
             res.json({
                 status: 511,
