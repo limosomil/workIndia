@@ -19,6 +19,7 @@
   - Add Auth for checking user login token when app launches.
   - Referral System to get virtual money. Create new table, check if a user has used a referral, if not then he is elligible to use a referral code. Referrer and referee get some amount. (Update wallet coupon_money).
   - Authorize otp and authcheck end point. Suggestion : Hourly time encoded.
+  - Add boolean column to competitions table to feature them. 0=normal, 1 = featured competiton.
 
   - Admin end point to remove an entry. Must update all the three tables. Only for special requests.
 
