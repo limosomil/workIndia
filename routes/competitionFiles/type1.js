@@ -29,7 +29,7 @@ router.get('/enter', authorizeID, async (req, res)=>{
     try{
 
         //Validate Data
-        const playerID = req.body.playerID;
+        const playerID = req.body.userID;
         const competitionID = req.body.competitionID;
         const stockList = req.body.stockList;
         if(checkUndefined(playerID) || checkUndefined(competitionID)){
@@ -171,7 +171,7 @@ router.post('/edit',authorizeID, async (req, res)=>{
 
     try{
 
-        const playerID = req.body.playerID; //FIXME: Not required. Only used for auth.
+        const playerID = req.body.userID; //FIXME: Not required. Only used for auth.
         const entryID = req.body.entryID;
         const stockList = req.body.stockList;
 
