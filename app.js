@@ -11,9 +11,14 @@ const profile = require('./routes/profile');
 const coupon = require('./routes/coupon');
 const competition = require('./routes/competition');
 
+const authCheck = require('./routes/authcheck');
+
 app.get('/', (req,res)=>{
     res.send("If you are here, you probably shouldn't be on this server. Shoo away. Or I'll call 911.");
 });
+
+app.use('/authCheck', authCheck);
+
 app.use('/otp', otp);
 app.use('/profile', profile);
 app.use('/coupon', coupon);

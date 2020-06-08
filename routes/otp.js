@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const connection = require('../connection');
 const pool = require('../connectionPool');
 
 const moment = require('moment');
 const jwt = require('jsonwebtoken');
+
+const superagent = require('superagent');
 
 router.post('/generate', async(req, res)=>{
 
@@ -24,13 +25,26 @@ router.post('/generate', async(req, res)=>{
         const otpDb = await pool.query(`SELECT * FROM otp_data WHERE phone=?`, [phone]);
 
         if(otpDb.length > 0){
-            res.json(
-                {
-                    status: 102,
-                    msg: 'OTP is already requested.'
-                }
-            );
-            return;
+
+            //TODO: Check if already requested OTP is expired.
+
+            let OTPdate = moment(otpDb[0].date_created);
+            let current_time = moment();
+            let minutes_old = (current_time-OTPdate)/60000;
+
+            if(minutes_old > 10){
+
+                const deleteExpired = await pool.query(`DELETE FROM otp_data WHERE id=?`, [otpDb[0].id]);
+
+            }else{
+                res.json(
+                    {
+                        status: 102,
+                        msg: 'OTP is already requested.'
+                    }
+                );
+                return;
+            }
         }
 
         // Generate new OTP and add it to otp_data table with current timestamp
@@ -39,10 +53,18 @@ router.post('/generate', async(req, res)=>{
 
         const insertOtp = await pool.query(`INSERT INTO otp_data (otp, phone, date_created) VALUES (?, ?, ?)`, [otp, phone, current_time]);
 
+        
+        //FIXME: Fix 2factor api.
+        superagent
+            .get(`https://2factor.in/API/V1/43f5a770-a758-11ea-9fa5-0200cd936042/SMS/+91${phone}/${otp}`)
+            .end((err, res)=>{
+                if(err);
+            });
+
+
         res.json({
             status: 103,
-            msg: `OTP for ${req.body.phone} created.`,
-            otp: otp //FIXME: Remove this after testing
+            msg: `OTP for ${req.body.phone} created.`
         });
 
     }catch(e){
@@ -120,7 +142,7 @@ router.post('/verify', async (req, res)=>{
         {
             //If OTP is expired, this will be executed.
 
-            //TODO: Delete expired OTP from the database.
+            //Delete expired OTP from the database.
 
             const deleteExpired = await pool.query(`DELETE FROM otp_data WHERE id=?`, [findOtp[0].id]);
 
@@ -170,6 +192,7 @@ router.post('/verify', async (req, res)=>{
 
         delete_otpentry(res, otp, phone, userdata, statusCode, "Login Successful.");
 
+        return;
 
     }catch(e){
 
@@ -183,16 +206,14 @@ router.post('/verify', async (req, res)=>{
 
 });
 
-function delete_otpentry(res, otp, phone, userdata, status, msg){
+async function delete_otpentry(res, otp, phone, userdata, status, msg){
     //Since OTP is verified, delete it from the otp_data table.
-    connection.query(`DELETE FROM otp_data WHERE otp='${parseInt(otp)}' AND phone='${phone}'`, function(error, results, fields){
-        if(error) throw error;
-
-        res.json({
-            status: status,
-            msg: msg,
-            user: userdata
-        });
+    let del = await pool.query(`DELETE FROM otp_data WHERE otp=? AND phone=?`, [otp, phone]);
+        
+    res.json({
+        status: status,
+        msg: msg,
+        user: userdata
     });
 }
 
