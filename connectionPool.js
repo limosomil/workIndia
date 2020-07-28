@@ -8,7 +8,7 @@ const pool = mysql.createPool({
   database : 'workindia'
 })
 
-// Ping database to check for common exception errors.
+
 pool.getConnection((err, connection) => {
   if (err) {
     if (err.code === 'PROTOCOL_CONNECTION_LOST') {
@@ -27,7 +27,7 @@ pool.getConnection((err, connection) => {
   return
 })
 
-// Promisify for Node.js async/await.
+
 pool.query = util.promisify(pool.query)
 
 module.exports = pool

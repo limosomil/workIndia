@@ -16,6 +16,7 @@ app.use(bodyparser.urlencoded({
 
 
 const login = require('./routes/login');
+const sites = require('./routes/sites');
 
 app.get('/', (req,res)=>{
     res.send("If you are here, you probably shouldn't be on this server. Shoo away. Or I'll call 911.");
@@ -23,6 +24,7 @@ app.get('/', (req,res)=>{
 
 
 app.use('/app/user', login);
+app.use('/app/sites',sites);
 // app.get('/', (req,res) => res.send('Welcome To Stock Game Internal API!'));
 
 const port = 3000;
