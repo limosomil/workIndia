@@ -6,6 +6,14 @@ const moment = require('moment');
 const jwt = require('jsonwebtoken');
 const {authorizePhone, authorizeID} = require('../helpers/auth');
 
+router.get('/check', async(req, res)=>{
+    let name = req.body.name;
+    res.json({
+        msg : "All is well",
+        names: name
+    });
+});
+
 router.post('/edit', authorizePhone, async (req, res)=>{
 
     let first_name = req.body.first_name;
