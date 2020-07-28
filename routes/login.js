@@ -12,7 +12,7 @@ router.post('/', async (req, res)=>{
         if( username == undefined)
         {
             res.json({
-                error_status: 001,
+                
                 msg: "Username Missing"
             });
             return;
@@ -20,7 +20,7 @@ router.post('/', async (req, res)=>{
         if( password == undefined)
         {
             res.json({
-                error_status: 002,
+                
                 msg: "Password Missing"
             });
             return;
@@ -30,7 +30,7 @@ router.post('/', async (req, res)=>{
         if(checkUserName.length>0)
         {
             res.json({
-                error_status: 003,
+                
                 msg: "Username Already Exists"
             });
             return;
@@ -49,7 +49,7 @@ router.post('/', async (req, res)=>{
 
         console.log(e);
         res.json({
-            status: 116,
+           
             msg: "Internal Server Error."
         });
 
@@ -68,7 +68,7 @@ router.post('/auth', async (req, res)=>{
         if( username == undefined)
         {
             res.json({
-                error_status: 001,
+               
                 msg: "Username Missing"
             });
             return;
@@ -76,7 +76,7 @@ router.post('/auth', async (req, res)=>{
         if( password == undefined)
         {
             res.json({
-                error_status: 002,
+                
                 msg: "Password Missing"
             });
             return;
@@ -107,7 +107,6 @@ router.post('/auth', async (req, res)=>{
 
         console.log(e);
         res.json({
-            error_status: 500,
             msg: "Internal Server Error."
         });
 
